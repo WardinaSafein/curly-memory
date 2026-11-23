@@ -121,7 +121,8 @@ function validatePixels(a: DeclaredAsset, r: Raster): void {
     const off = Math.hypot(dx, dy);
     const tolerance = Math.max(40, 0.45 * Math.max(guide.w, guide.h));
     if (off > tolerance) note('warn', a, `Misaligned: art centre is ${Math.round(off)}px from the template position (dx ${Math.round(dx)}, dy ${Math.round(dy)}).`);
-    if (!slot.states) {
+    // Hair hangs from the head bone and never has to reach the head pivot (chin), so it is exempt.
+    if (!slot.states && slot.family !== 'hair') {
       const [px, py] = bone.pivot;
       const reach = rig.jointOverlap;
       const outside = Math.max(art.x - px, px - (art.x + art.w), art.y - py, py - (art.y + art.h));
