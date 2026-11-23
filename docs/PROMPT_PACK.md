@@ -69,6 +69,9 @@ still poses and views that follow these rules:
 
 ## 4. Priority 1: the player character (rig test v2)
 
+> **Ready-made kit:** [`docs/edit-kit/cyberwr_edit_kit_v1.zip`](edit-kit/cyberwr_edit_kit_v1.zip) contains the base image,
+> one "select this area" picture per edit, and all prompts fully written out (`PROMPTS.md`).
+
 ### Workflow
 
 ChatGPT makes **edited versions of the whole approved character**, and I cut them into the 28 rig
