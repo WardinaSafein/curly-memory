@@ -1,0 +1,436 @@
+{
+  "rig": "player",
+  "version": 1,
+  "canvas": {
+    "width": 1024,
+    "height": 1536
+  },
+  "baselineY": 1440,
+  "skullTopY": 190,
+  "centerX": 512,
+  "padding": 16,
+  "jointOverlap": 30,
+  "joints": [
+    {
+      "id": "root",
+      "label": "ROOT (ground)",
+      "x": 509,
+      "y": 1440,
+      "parent": null
+    },
+    {
+      "id": "pelvis",
+      "label": "PELVIS",
+      "x": 510,
+      "y": 835,
+      "parent": "root"
+    },
+    {
+      "id": "torso",
+      "label": "WAIST",
+      "x": 510,
+      "y": 795,
+      "parent": "pelvis"
+    },
+    {
+      "id": "neck",
+      "label": "NECK BASE",
+      "x": 515,
+      "y": 468,
+      "parent": "torso"
+    },
+    {
+      "id": "head",
+      "label": "HEAD PIVOT",
+      "x": 521,
+      "y": 402,
+      "parent": "neck"
+    },
+    {
+      "id": "upperarm_front",
+      "label": "SHOULDER F",
+      "x": 448,
+      "y": 495,
+      "parent": "torso"
+    },
+    {
+      "id": "forearm_front",
+      "label": "ELBOW F",
+      "x": 400,
+      "y": 680,
+      "parent": "upperarm_front"
+    },
+    {
+      "id": "hand_front",
+      "label": "WRIST F",
+      "x": 372,
+      "y": 850,
+      "parent": "forearm_front"
+    },
+    {
+      "id": "upperarm_back",
+      "label": "SHOULDER B",
+      "x": 582,
+      "y": 490,
+      "parent": "torso"
+    },
+    {
+      "id": "forearm_back",
+      "label": "ELBOW B",
+      "x": 626,
+      "y": 672,
+      "parent": "upperarm_back"
+    },
+    {
+      "id": "hand_back",
+      "label": "WRIST B",
+      "x": 650,
+      "y": 838,
+      "parent": "forearm_back"
+    },
+    {
+      "id": "thigh_front",
+      "label": "HIP F",
+      "x": 470,
+      "y": 870,
+      "parent": "pelvis"
+    },
+    {
+      "id": "shin_front",
+      "label": "KNEE F",
+      "x": 462,
+      "y": 1140,
+      "parent": "thigh_front"
+    },
+    {
+      "id": "foot_front",
+      "label": "ANKLE F",
+      "x": 458,
+      "y": 1392,
+      "parent": "shin_front"
+    },
+    {
+      "id": "thigh_back",
+      "label": "HIP B",
+      "x": 550,
+      "y": 862,
+      "parent": "pelvis"
+    },
+    {
+      "id": "shin_back",
+      "label": "KNEE B",
+      "x": 556,
+      "y": 1132,
+      "parent": "thigh_back"
+    },
+    {
+      "id": "foot_back",
+      "label": "ANKLE B",
+      "x": 560,
+      "y": 1384,
+      "parent": "shin_back"
+    }
+  ],
+  "parts": [
+    {
+      "drawOrder": 1,
+      "slot": "hair_back",
+      "attachedTo": "head",
+      "files": [
+        "assets-src/characters/player/player_hair_h01_back.png"
+      ],
+      "approxBounds": {
+        "x": 410,
+        "y": 160,
+        "w": 230,
+        "h": 310
+      }
+    },
+    {
+      "drawOrder": 2,
+      "slot": "hand_back",
+      "attachedTo": "hand_back",
+      "files": [
+        "assets-src/characters/player/player_skin_s01_hand_back.png"
+      ],
+      "approxBounds": {
+        "x": 625,
+        "y": 836,
+        "w": 58,
+        "h": 96
+      }
+    },
+    {
+      "drawOrder": 3,
+      "slot": "forearm_back",
+      "attachedTo": "forearm_back",
+      "files": [
+        "assets-src/characters/player/player_outfit_o01_forearm_back.png"
+      ],
+      "approxBounds": {
+        "x": 598,
+        "y": 644,
+        "w": 80,
+        "h": 222
+      }
+    },
+    {
+      "drawOrder": 4,
+      "slot": "upperarm_back",
+      "attachedTo": "upperarm_back",
+      "files": [
+        "assets-src/characters/player/player_outfit_o01_upperarm_back.png"
+      ],
+      "approxBounds": {
+        "x": 548,
+        "y": 456,
+        "w": 112,
+        "h": 250
+      }
+    },
+    {
+      "drawOrder": 5,
+      "slot": "foot_back",
+      "attachedTo": "foot_back",
+      "files": [
+        "assets-src/characters/player/player_outfit_o01_foot_back.png"
+      ],
+      "approxBounds": {
+        "x": 534,
+        "y": 1386,
+        "w": 116,
+        "h": 48
+      }
+    },
+    {
+      "drawOrder": 6,
+      "slot": "shin_back",
+      "attachedTo": "shin_back",
+      "files": [
+        "assets-src/characters/player/player_outfit_o01_shin_back.png"
+      ],
+      "approxBounds": {
+        "x": 520,
+        "y": 1096,
+        "w": 76,
+        "h": 324
+      }
+    },
+    {
+      "drawOrder": 7,
+      "slot": "thigh_back",
+      "attachedTo": "thigh_back",
+      "files": [
+        "assets-src/characters/player/player_outfit_o01_thigh_back.png"
+      ],
+      "approxBounds": {
+        "x": 502,
+        "y": 814,
+        "w": 102,
+        "h": 366
+      }
+    },
+    {
+      "drawOrder": 8,
+      "slot": "foot_front",
+      "attachedTo": "foot_front",
+      "files": [
+        "assets-src/characters/player/player_outfit_o01_foot_front.png"
+      ],
+      "approxBounds": {
+        "x": 428,
+        "y": 1392,
+        "w": 124,
+        "h": 52
+      }
+    },
+    {
+      "drawOrder": 9,
+      "slot": "shin_front",
+      "attachedTo": "shin_front",
+      "files": [
+        "assets-src/characters/player/player_outfit_o01_shin_front.png"
+      ],
+      "approxBounds": {
+        "x": 419,
+        "y": 1101,
+        "w": 82,
+        "h": 330
+      }
+    },
+    {
+      "drawOrder": 10,
+      "slot": "thigh_front",
+      "attachedTo": "thigh_front",
+      "files": [
+        "assets-src/characters/player/player_outfit_o01_thigh_front.png"
+      ],
+      "approxBounds": {
+        "x": 410,
+        "y": 818,
+        "w": 112,
+        "h": 374
+      }
+    },
+    {
+      "drawOrder": 11,
+      "slot": "neck",
+      "attachedTo": "neck",
+      "files": [
+        "assets-src/characters/player/player_skin_s01_neck.png"
+      ],
+      "approxBounds": {
+        "x": 477,
+        "y": 357,
+        "w": 82,
+        "h": 159
+      }
+    },
+    {
+      "drawOrder": 12,
+      "slot": "pelvis",
+      "attachedTo": "pelvis",
+      "files": [
+        "assets-src/characters/player/player_outfit_o01_pelvis.png"
+      ],
+      "approxBounds": {
+        "x": 420,
+        "y": 785,
+        "w": 186,
+        "h": 125
+      }
+    },
+    {
+      "drawOrder": 13,
+      "slot": "torso",
+      "attachedTo": "torso",
+      "files": [
+        "assets-src/characters/player/player_outfit_o01_torso.png"
+      ],
+      "approxBounds": {
+        "x": 412,
+        "y": 458,
+        "w": 206,
+        "h": 368
+      }
+    },
+    {
+      "drawOrder": 14,
+      "slot": "head",
+      "attachedTo": "head",
+      "files": [
+        "assets-src/characters/player/player_skin_s01_head.png"
+      ],
+      "approxBounds": {
+        "x": 430,
+        "y": 190,
+        "w": 210,
+        "h": 222
+      }
+    },
+    {
+      "drawOrder": 15,
+      "slot": "eyes",
+      "attachedTo": "head",
+      "files": [
+        "assets-src/characters/player/player_eyes_e01_open.png",
+        "assets-src/characters/player/player_eyes_e01_half.png",
+        "assets-src/characters/player/player_eyes_e01_closed.png",
+        "assets-src/characters/player/player_eyes_e01_wide.png"
+      ],
+      "approxBounds": {
+        "x": 535,
+        "y": 278,
+        "w": 98,
+        "h": 48
+      }
+    },
+    {
+      "drawOrder": 16,
+      "slot": "brows",
+      "attachedTo": "head",
+      "files": [
+        "assets-src/characters/player/player_brows_b01_neutral.png",
+        "assets-src/characters/player/player_brows_b01_raised.png"
+      ],
+      "approxBounds": {
+        "x": 532,
+        "y": 244,
+        "w": 104,
+        "h": 30
+      }
+    },
+    {
+      "drawOrder": 17,
+      "slot": "mouth",
+      "attachedTo": "head",
+      "files": [
+        "assets-src/characters/player/player_mouth_m01_neutral.png",
+        "assets-src/characters/player/player_mouth_m01_smile.png",
+        "assets-src/characters/player/player_mouth_m01_surprised.png"
+      ],
+      "approxBounds": {
+        "x": 560,
+        "y": 348,
+        "w": 66,
+        "h": 40
+      }
+    },
+    {
+      "drawOrder": 18,
+      "slot": "hair_front",
+      "attachedTo": "head",
+      "files": [
+        "assets-src/characters/player/player_hair_h01_front.png"
+      ],
+      "approxBounds": {
+        "x": 440,
+        "y": 158,
+        "w": 206,
+        "h": 162
+      }
+    },
+    {
+      "drawOrder": 19,
+      "slot": "hand_front",
+      "attachedTo": "hand_front",
+      "files": [
+        "assets-src/characters/player/player_skin_s01_hand_front.png"
+      ],
+      "approxBounds": {
+        "x": 333,
+        "y": 848,
+        "w": 66,
+        "h": 104
+      }
+    },
+    {
+      "drawOrder": 20,
+      "slot": "forearm_front",
+      "attachedTo": "forearm_front",
+      "files": [
+        "assets-src/characters/player/player_outfit_o01_forearm_front.png"
+      ],
+      "approxBounds": {
+        "x": 341,
+        "y": 649,
+        "w": 90,
+        "h": 232
+      }
+    },
+    {
+      "drawOrder": 21,
+      "slot": "upperarm_front",
+      "attachedTo": "upperarm_front",
+      "files": [
+        "assets-src/characters/player/player_outfit_o01_upperarm_front.png"
+      ],
+      "approxBounds": {
+        "x": 362,
+        "y": 457,
+        "w": 124,
+        "h": 261
+      }
+    }
+  ]
+}

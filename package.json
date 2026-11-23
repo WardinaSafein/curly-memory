@@ -1,0 +1,32 @@
+{
+  "name": "cyberwr",
+  "private": true,
+  "version": "0.1.0",
+  "description": "CyberWR: an illustrated, story-driven cybersecurity adventure (browser, Phaser + TypeScript)",
+  "type": "module",
+  "scripts": {
+    "assets": "tsx tools/build-assets.ts",
+    "assets:validate": "tsx tools/build-assets.ts --validate-only",
+    "rig:template": "tsx tools/make-rig-template.ts",
+    "predev": "npm run assets",
+    "dev": "vite",
+    "prebuild": "npm run assets",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "smoke": "tsx tools/smoke.ts"
+  },
+  "dependencies": {
+    "inkjs": "^2.4.0",
+    "phaser": "^4.2.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "sharp": "^0.35.5",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.8",
+    "vitest": "^5.1.1"
+  }
+}
