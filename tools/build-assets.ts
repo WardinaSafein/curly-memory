@@ -158,6 +158,13 @@ async function crossCheckRigParts(assets: DeclaredAsset[]): Promise<void> {
   const opaque = (r: Raster, i: number): boolean => r.data[i * 4 + 3] > 128;
   const opaqueCount = (r: Raster): number => { let n = 0; for (let i = 0; i < r.width * r.height; i++) if (opaque(r, i)) n++; return n; };
 
+  // 0. Expression states must actually contain a drawing (not a few stray pixels).
+  for (const d of delivered.values()) {
+    if (!d.a.rig?.state) continue;
+    const n = opaqueCount(d.r);
+    if (n > 0 && n < 80) note('error', d.a, `Almost empty (${n} visible pixels); the ${d.a.rig.state} state needs a clear drawing.`);
+  }
+
   // 1. Expression states must be different drawings.
   const bySlot = new Map<string, { a: DeclaredAsset; r: Raster }[]>();
   for (const d of delivered.values()) {

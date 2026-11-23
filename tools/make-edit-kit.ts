@@ -34,7 +34,7 @@ const pad = (s: GuideShape, p: number): GuideShape => {
   return rect(b.x - p, b.y - p, b.w + p * 2, b.h + p * 2);
 };
 
-interface Edit { id: string; file: string; title: string; select: GuideShape[]; selectText: string; prompt: string }
+interface Edit { id: string; file: string; title: string; select: GuideShape[]; selectText: string; prompt: string; base?: string }
 
 const EDITS: Edit[] = [
   {
@@ -86,6 +86,13 @@ const EDITS: Edit[] = [
     prompt: `Remove both arms completely (sleeves, cuffs, forearms, watch and hands). Repaint what would be behind them: the sides and shoulders of the same jacket with rounded shoulders where the sleeves attached, and the trousers and pockets behind the hands. Same design and colours.`,
   },
   {
+    id: 'E09b', file: 'edit_09b_shoulders.png', title: 'Shoulders without sleeve tops',
+    base: 'edit_09_no_arms.png',
+    select: [rect(330, 445, 140, 150), rect(575, 450, 120, 140)],
+    selectText: 'the top of each shoulder where the sleeve tops (and the WR badge) are still left',
+    prompt: `Remove the remaining tops of both sleeves, including the WR badge patch on the left shoulder. Repaint them as the jacket's own rounded shoulders: the jacket body ends at the shoulder seam with a smooth curved shoulder line, same jacket colours and outline style, no badge.`,
+  },
+  {
     id: 'E10', file: 'edit_10_belt.png', title: 'Belt fully visible',
     select: [rect(415, 688, 245, 72)],
     selectText: 'the bottom edge of the jacket and the belt',
@@ -106,8 +113,16 @@ async function main(): Promise<void> {
       `<text x="40" y="60" font-family="${FONT}" font-size="28" font-weight="800" fill="#fff8ec">${esc(`${e.id}  ${e.title}`)}</text>` +
       `<text x="40" y="96" font-family="${FONT}" font-size="20" font-weight="500" fill="#ffb3b3">${esc('Select the RED area in ChatGPT\'s image editor')}</text>`;
     const base = await sharp({ create: { width: W, height: H, channels: 4, background: '#ffffff' } }).composite([{ input: REF }]).png().toBuffer();
-    await sharp(base).composite([{ input: Buffer.from(svgDoc(W, H, dimMask + outline + label)) }]).png().toFile(join(OUT, `${e.id}_${e.file.replace(/^edit_\d+_/, '').replace('.png', '')}_SELECT.png`));
+    await sharp(base).composite([{ input: Buffer.from(svgDoc(W, H, dimMask + outline + label)) }]).png().toFile(join(OUT, `${e.id}_${e.file.replace(/^edit_\d+b?_/, '').replace('.png', '')}_SELECT.png`));
   }
+
+  // Overview: all selection pictures in one grid.
+  const thumbs = EDITS.map((e) => join(OUT, `${e.id}_${e.file.replace(/^edit_\d+b?_/, '').replace('.png', '')}_SELECT.png`));
+  const tw = 256, th = 384, cols = 6;
+  const tiles = await Promise.all(thumbs.map((f) => sharp(f).resize(tw, th).png().toBuffer()));
+  await sharp({ create: { width: tw * cols, height: th * Math.ceil(tiles.length / cols), channels: 3, background: '#ffffff' } })
+    .composite(tiles.map((input, i) => ({ input, left: (i % cols) * tw, top: Math.floor(i / cols) * th })))
+    .png().toFile(join(OUT, 'OVERVIEW.png'));
 
   const md = [
     '# CyberWR character edit kit: prompts',
@@ -124,7 +139,9 @@ async function main(): Promise<void> {
     '',
   ];
   for (const e of EDITS) {
-    md.push(`## ${e.id}: ${e.title}`, '', `- **Select:** ${e.selectText} (see \`${e.id}_..._SELECT.png\`)`, `- **Save the result as:** \`${e.file}\``, '', '```', STYLE, '', `Edit only the selected area. ${e.prompt}`, KEEP, '```', '');
+    md.push(`## ${e.id}: ${e.title}`, '');
+    if (e.base) md.push(`- **Upload instead of the design reference:** \`${e.base}\` (your earlier result)`);
+    md.push(`- **Select:** ${e.selectText} (see \`${e.id}_..._SELECT.png\`)`, `- **Save the result as:** \`${e.file}\``, '', '```', STYLE, '', `Edit only the selected area. ${e.prompt}`, KEEP, '```', '');
   }
   writeFileSync(join(OUT, 'PROMPTS.md'), md.join('\n'));
   execFileSync('zip', ['-r', '-q', '-X', 'cyberwr_edit_kit_v1.zip', '.', '-x', '*.zip'], { cwd: OUT });

@@ -118,6 +118,19 @@ Edit only the selected area. Remove both arms completely (sleeves, cuffs, forear
 Do not change anything outside the selected area. Keep the image exactly 1024x1536 with the same framing: nothing moved, zoomed or cropped.
 ```
 
+## E09b: Shoulders without sleeve tops
+
+- **Upload instead of the design reference:** `edit_09_no_arms.png` (your earlier result)
+- **Select:** the top of each shoulder where the sleeve tops (and the WR badge) are still left (see `E09b_..._SELECT.png`)
+- **Save the result as:** `edit_09b_shoulders.png`
+
+```
+STYLE (CyberWR): warm hand-drawn 2D narrative adventure illustration, anime-inspired, clean dark-brown outlines with consistent line weight, soft cel shading (2–3 tones per material), warm cohesive palette: ochre #D79535, dark brown #392F2D, warm skin #F5B27B, teal accent #35BFC1. Soft neutral key light from the upper left. Charming and slightly mysterious, not neon cyberpunk. No text, no letters, no numbers, no watermark.
+
+Edit only the selected area. Remove the remaining tops of both sleeves, including the WR badge patch on the left shoulder. Repaint them as the jacket's own rounded shoulders: the jacket body ends at the shoulder seam with a smooth curved shoulder line, same jacket colours and outline style, no badge.
+Do not change anything outside the selected area. Keep the image exactly 1024x1536 with the same framing: nothing moved, zoomed or cropped.
+```
+
 ## E10: Belt fully visible
 
 - **Select:** the bottom edge of the jacket and the belt (see `E10_..._SELECT.png`)
