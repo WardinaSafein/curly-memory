@@ -51,6 +51,11 @@ Until a file arrives, the game shows a labelled placeholder with the same name a
 
 ## 4. Player character: rig test batch v2 (requested now)
 
+> **Update:** the player rig passed validation and Rig Lab testing using the **edit-kit workflow**
+> (ChatGPT edits the whole character and `tools/rig_cutter/cut_parts.py` cuts the parts). See
+> [rig test v2 review](reviews/rigtest-v2/README.md) and [PROMPT_PACK.md](PROMPT_PACK.md). The
+> part-painting brief below remains valid for hand-painted deliveries.
+
 One character (the **approved CyberWR design**), one hairstyle, one outfit, one face style: enough to
 test idle, blink, walk and surprise in the Rig Lab. The first package (v1) failed validation and is
 kept as a **design reference only** ([review](reviews/rigtest-v1/README.md)).

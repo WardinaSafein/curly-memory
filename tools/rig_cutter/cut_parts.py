@@ -207,9 +207,9 @@ def main():
     S = T[..., 3] > 0.03
 
     # ---- edge fringe removal on the outer silhouette
-    ring = S & ~erode(S, 2)
+    ring = S & ~erode(S, 3)
     sat = T[..., :3].max(2) - T[..., :3].min(2)
-    fringe = ring & (lum(T) > 0.62) & (sat < 0.22)
+    fringe = ring & (lum(T) > 0.55) & (sat < 0.25)
     T[fringe, 3] = 0
     S = T[..., 3] > 0.03
     notes.append(f'removed {int(fringe.sum())} light fringe pixels from the outline')
@@ -221,10 +221,19 @@ def main():
     arm_zone = np.zeros((H, W), bool)
     for s in ARM_SLOTS:
         arm_zone |= shape_mask(slots[s]['shape'], 40)
-    removed = arm_zone & (diff(ref, ed['no_arms']) > 0.27) & S
-    arm_mask = dilate(open_mask(removed, 3), 2) & S & arm_zone
-    for s in ['upperarm_front', 'upperarm_back']:
-        arm_mask |= shape_mask(slots[s]['shape'], 0) & S & (yy < 620)
+    # arm pixels = design pixels the "no arms" edit doesn't have (sleeves/hands sticking out of the body)
+    # plus strong changes close to the arm shapes (arms in front of the jacket and trousers);
+    # the edit also redraws the jacket a little, so changes far from the arms are ignored
+    arm_near = np.zeros((H, W), bool)
+    for s_ in ARM_SLOTS:
+        arm_near |= shape_mask(slots[s_]['shape'], 12)
+    body_no_arms = erode(ed['no_arms'][..., 3] > 0.5, 2)
+    outside_body = S & ~body_no_arms & arm_zone
+    changed = arm_near & (diff(ref, ed['no_arms']) > 0.27) & S
+    arm_mask = dilate(open_mask(outside_body | changed, 3), 2) & S & arm_zone
+    # the front shoulder cap sits on top of the jacket, so it belongs to the arm;
+    # the back arm is drawn behind the jacket, so its shoulder area stays with the torso
+    arm_mask |= shape_mask(slots['upperarm_front']['shape'], 0) & S & (yy < 620)
     segs = {}
     for s in ARM_SLOTS:
         sh = slots[s]['shape']
@@ -348,17 +357,29 @@ def main():
             m = owner == other
             (above if o > order[sid] else below)[...] |= m
         # over lower parts: copy the real art (rest pose unchanged)
-        vis = zone & below
+        # only a narrow band past the joint, so moving the lower part never reveals a stale copy
+        vis = zone & below & dilate(own, rig.get('overlapProbe', 20) + 16)
         out[vis] = T[vis]
         # under higher parts: revealed art from an edit, else extrusion
         hid = zone & above
         filled = np.zeros((H, W), bool)
         for src, where in hidden_src[sid]:
-            take = hid & ~filled & (src[..., 3] > 0.5) & (where if where is not None else True)
-            out[take] = src[take]
+            if where is arm_owned:
+                # behind the arms the "no arms" edit is the truth: jacket where it has jacket,
+                # empty where the sleeve stood out from the body
+                take = hid & ~filled & arm_owned
+                inside_guide = shape_mask(slot['shape'], 0)
+                empty = take & (src[..., 3] <= 0.5)
+                # empty in the edit but inside the part's own outline (e.g. at a shoulder joint): fill later
+                take &= ~(empty & inside_guide)
+                out[take] = src[take]
+                out[take & (src[..., 3] <= 0.5), 3] = 0
+            else:
+                take = hid & ~filled & (src[..., 3] > 0.5) & (where if where is not None else True)
+                out[take] = src[take]
             filled |= take
         todo = hid & ~filled
-        known = (out[..., 3] > 0.5)
+        known = (out[..., 3] > 0.95)
         for _ in range(100):
             if not todo.any():
                 break
@@ -370,6 +391,16 @@ def main():
             out[grow] = acc[grow] / cnt[grow][:, None]
             out[grow, 3] = 1.0
             known |= grow; todo &= ~grow
+        # drop detached fragments: keep what is connected to the part's guide region
+        solid = out[..., 3] > 0.05
+        seed = solid & shape_mask(slot['shape'], 0)
+        if seed.any() and not sid.startswith('hair'):
+            for _ in range(400):
+                grown = dilate(seed, 3) & solid
+                if (grown == seed).all():
+                    break
+                seed = grown
+            out[solid & ~seed, 3] = 0
         missing = [p for p in probes(rig, slot) if out[p[1], p[0], 3] <= 0.5]
         if missing:
             prob_fail[sid] = missing
