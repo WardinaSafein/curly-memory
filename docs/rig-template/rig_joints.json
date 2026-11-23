@@ -1,6 +1,6 @@
 {
   "rig": "player",
-  "version": "1.1",
+  "version": "1.2",
   "canvas": {
     "width": 1024,
     "height": 1536
@@ -143,13 +143,34 @@
       "x": 592,
       "y": 1362,
       "parent": "shin_back"
+    },
+    {
+      "id": "hair_back",
+      "label": "HAIR B (crown)",
+      "x": 512,
+      "y": 262,
+      "parent": "head"
+    },
+    {
+      "id": "hair_front",
+      "label": "HAIR F (crown)",
+      "x": 536,
+      "y": 250,
+      "parent": "head"
+    },
+    {
+      "id": "hem",
+      "label": "JACKET HEM",
+      "x": 530,
+      "y": 703,
+      "parent": "torso"
     }
   ],
   "parts": [
     {
       "drawOrder": 1,
       "slot": "hair_back",
-      "attachedTo": "head",
+      "attachedTo": "hair_back",
       "files": [
         "assets-src/characters/player/player_hair_h01_back.png"
       ],
@@ -419,6 +440,34 @@
     },
     {
       "drawOrder": 13,
+      "slot": "hem",
+      "attachedTo": "hem",
+      "files": [
+        "assets-src/characters/player/player_outfit_o01_hem.png"
+      ],
+      "approxBounds": {
+        "x": 418,
+        "y": 698,
+        "w": 234,
+        "h": 54
+      },
+      "mustPaint": [
+        [
+          530,
+          688
+        ],
+        [
+          460,
+          688
+        ],
+        [
+          600,
+          688
+        ]
+      ]
+    },
+    {
+      "drawOrder": 14,
       "slot": "torso",
       "attachedTo": "torso",
       "files": [
@@ -428,7 +477,7 @@
         "x": 368,
         "y": 418,
         "w": 287,
-        "h": 327
+        "h": 294
       },
       "mustPaint": [
         [
@@ -438,15 +487,11 @@
         [
           625,
           518
-        ],
-        [
-          530,
-          738
         ]
       ]
     },
     {
-      "drawOrder": 14,
+      "drawOrder": 15,
       "slot": "head",
       "attachedTo": "head",
       "files": [
@@ -461,7 +506,7 @@
       "mustPaint": []
     },
     {
-      "drawOrder": 15,
+      "drawOrder": 16,
       "slot": "eyes",
       "attachedTo": "head",
       "files": [
@@ -479,7 +524,7 @@
       "mustPaint": []
     },
     {
-      "drawOrder": 16,
+      "drawOrder": 17,
       "slot": "brows",
       "attachedTo": "head",
       "files": [
@@ -495,7 +540,7 @@
       "mustPaint": []
     },
     {
-      "drawOrder": 17,
+      "drawOrder": 18,
       "slot": "mouth",
       "attachedTo": "head",
       "files": [
@@ -512,9 +557,9 @@
       "mustPaint": []
     },
     {
-      "drawOrder": 18,
+      "drawOrder": 19,
       "slot": "hair_front",
-      "attachedTo": "head",
+      "attachedTo": "hair_front",
       "files": [
         "assets-src/characters/player/player_hair_h01_front.png"
       ],
@@ -527,7 +572,7 @@
       "mustPaint": []
     },
     {
-      "drawOrder": 19,
+      "drawOrder": 20,
       "slot": "hand_front",
       "attachedTo": "hand_front",
       "files": [
@@ -547,7 +592,7 @@
       ]
     },
     {
-      "drawOrder": 20,
+      "drawOrder": 21,
       "slot": "forearm_front",
       "attachedTo": "forearm_front",
       "files": [
@@ -571,7 +616,7 @@
       ]
     },
     {
-      "drawOrder": 21,
+      "drawOrder": 22,
       "slot": "upperarm_front",
       "attachedTo": "upperarm_front",
       "files": [

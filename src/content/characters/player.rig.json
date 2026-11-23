@@ -1,7 +1,7 @@
 {
-  "$comment": "Player cutout rig v1.1, fitted to the approved CyberWR character design (docs/rig-template/design_reference.png). Coordinates are pixels on the shared 1024x1536 part canvas, in the pose the design is drawn in (arms ~25 deg from the body; `restPose` relaxes them in code). The rig template PNGs, placeholders, validator probes and the runtime skeleton are all generated from this file: change it here, then run `npm run rig:template`.",
+  "$comment": "Player cutout rig v1.2 (v1.1 joints + hair and jacket-hem follow-through bones), fitted to the approved CyberWR character design (docs/rig-template/design_reference.png). Coordinates are pixels on the shared 1024x1536 part canvas, in the pose the design is drawn in (arms ~25 deg from the body; `restPose` relaxes them in code). The rig template PNGs, placeholders, validator probes and the runtime skeleton are all generated from this file: change it here, then run `npm run rig:template`.",
   "id": "player",
-  "version": "1.1",
+  "version": "1.2",
   "canvas": {
     "width": 1024,
     "height": 1536
@@ -12,7 +12,7 @@
   "padding": 16,
   "jointOverlap": 30,
   "overlapProbe": 20,
-  "walkSpeed": 780,
+  "walkSpeed": 580,
   "restPose": {
     "upperarm_front": {
       "rot": -8
@@ -139,12 +139,30 @@
       "parent": "shin_back",
       "pivot": [592, 1362],
       "label": "ANKLE B"
+    },
+    {
+      "id": "hair_back",
+      "parent": "head",
+      "pivot": [512, 262],
+      "label": "HAIR B (crown)"
+    },
+    {
+      "id": "hair_front",
+      "parent": "head",
+      "pivot": [536, 250],
+      "label": "HAIR F (crown)"
+    },
+    {
+      "id": "hem",
+      "parent": "torso",
+      "pivot": [530, 703],
+      "label": "JACKET HEM"
     }
   ],
   "slots": [
     {
       "id": "hair_back",
-      "bone": "head",
+      "bone": "hair_back",
       "family": "hair",
       "key": "player.hair.{hair}.back",
       "file": "player_hair_{hair}_back.png",
@@ -161,7 +179,10 @@
       "key": "player.skin.{skin}.hand_back",
       "file": "player_skin_{skin}_hand_back.png",
       "color": "#e8a477",
-      "shape": {"type": "poly", "points": [[688, 758], [716, 754], [744, 796], [768, 856], [768, 914], [742, 924], [712, 892], [698, 842], [686, 800]]},
+      "shape": {
+        "type": "poly",
+        "points": [[688, 758], [716, 754], [744, 796], [768, 856], [768, 914], [742, 924], [712, 892], [698, 842], [686, 800]]
+      },
       "mustCover": [[700, 771]]
     },
     {
@@ -309,6 +330,19 @@
       "mustCover": [[530, 712], [470, 712], [600, 712]]
     },
     {
+      "id": "hem",
+      "bone": "hem",
+      "family": "outfit",
+      "key": "player.outfit.{outfit}.hem",
+      "file": "player_outfit_{outfit}_hem.png",
+      "color": "#b8782a",
+      "shape": {
+        "type": "poly",
+        "points": [[418, 700], [646, 698], [652, 742], [540, 752], [428, 748]]
+      },
+      "mustCover": [[530, 688], [460, 688], [600, 688]]
+    },
+    {
       "id": "torso",
       "bone": "torso",
       "family": "outfit",
@@ -317,9 +351,9 @@
       "color": "#d39433",
       "shape": {
         "type": "poly",
-        "points": [[372, 452], [410, 418], [470, 422], [520, 440], [575, 425], [615, 430], [640, 470], [655, 540], [650, 640], [640, 700], [625, 738], [540, 745], [440, 740], [415, 700], [400, 640], [385, 560], [368, 500]]
+        "points": [[372, 452], [410, 418], [470, 422], [520, 440], [575, 425], [615, 430], [640, 470], [655, 540], [650, 640], [642, 712], [420, 712], [400, 640], [385, 560], [368, 500]]
       },
-      "mustCover": [[420, 515], [625, 518], [530, 738]]
+      "mustCover": [[420, 515], [625, 518]]
     },
     {
       "id": "head",
@@ -386,7 +420,7 @@
     },
     {
       "id": "hair_front",
-      "bone": "head",
+      "bone": "hair_front",
       "family": "hair",
       "key": "player.hair.{hair}.front",
       "file": "player_hair_{hair}_front.png",

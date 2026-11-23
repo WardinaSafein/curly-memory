@@ -1,4 +1,9 @@
-# CyberWR: Player rig template v1.1 (fitted to the approved character)
+# CyberWR: Player rig template v1.2 (fitted to the approved character)
+
+> **v1.2:** the joints are unchanged from v1.1. Added for follow-through animation: the jacket **hem**
+> band is a separate part (`player_outfit_o01_hem.png`, below y = 703, pivot at (530, 703)), and the
+> two hair layers swing on their own bones (pivots at the crown: back (512, 262), front (536, 250)).
+> The back hair should continue as a plain hair underlayer behind the fringe.
 
 Template v1.1 replaces v1. The rig has been **refitted to the approved CyberWR character design**
 (`design_reference.png`), so **keep the design, proportions and pose exactly as drawn**: same height,
@@ -76,7 +81,8 @@ Folder `characters/player/`. ◆ = must-paint points (also shown in each `guides
 | 10 | `player_outfit_o01_thigh_front.png` | Upper trouser leg + cargo pocket + orange strap and clip, from under the belt to past the knee. | (482, 771), (404, 1114) |
 | 11 | `player_skin_s01_neck.png` | Neck skin from under the jaw down under the collar. | (518, 375), (527, 470) |
 | 12 | `player_outfit_o01_pelvis.png` | Belt, buckle and trouser top; **painted up under the jacket hem to y ≈ 700**. | (530, 712), (470, 712), (600, 712) |
-| 13 | `player_outfit_o01_torso.png` | Jacket body, hood and collar, T-shirt, pendant, chest pockets, hem to y ≈ 738. **No sleeves.** Under each sleeve, paint a rounded jacket shoulder so lifting an arm shows jacket, not background. | (420, 515), (625, 518), (530, 738) |
+| 13 | `player_outfit_o01_torso.png` | Jacket body, hood and collar, T-shirt, pendant, chest pockets, down to the hem line (y ≈ 703–712). **No sleeves.** Under each sleeve, paint a rounded jacket shoulder so lifting an arm shows jacket, not background. | (420, 515), (625, 518), (530, 738) |
+| 13b | `player_outfit_o01_hem.png` | The jacket's bottom band (below y = 703): hem, lower pocket edges, the T-shirt between the jacket panels. Continue the jacket ~20 px **up** under the torso. | (530, 688), (460, 688), (600, 688) |
 | 14 | `player_skin_s01_head.png` | **Skin only:** face, jaw, ear, nose, and the skull under the hair. **No eyes, brows, mouth or hair.** Paint smooth skin where the features go. | |
 | 15–18 | `player_eyes_e01_{open, half, closed, wide}.png` | Both eyes, inside **x 520–606, y 312–354**. `half` = upper lids halfway down; `closed` = lash lines; `wide` = bigger whites, smaller irises (surprise). | |
 | 19–20 | `player_brows_b01_{neutral, raised}.png` | Both brows, inside **x 538–606, y 284–316**. `raised` = lifted ~8–10 px and more arched. | |

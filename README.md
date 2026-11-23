@@ -34,7 +34,8 @@ Add `&reset` to wipe the save or `&nosave` to play without saving.
 | `npm run build` | Production build to `dist/` |
 | `npm run assets:validate` | Validate art in `assets-src/` against the manifest |
 | `npm run rig:template` | Regenerate the rig template package from `player.rig.json` |
-| `npm run rig:fit-walk -- --write` | Refit the walk (pelvis bob, stride speed) after changing leg joints |
+| `npm run rig:anims` | Regenerate the player's animation clips from `tools/gen-anims.ts` |
+| `npm run rig:fit-walk -- --write` | Refit a hand-made walk (pelvis bob, stride speed) after changing leg joints |
 | `npm run smoke` | Headless run of every scene with screenshots (needs Playwright + Chromium) |
 
 ## Docs
@@ -42,5 +43,5 @@ Add `&reset` to wipe the save or `&nosave` to play without saving.
 - [Architecture](docs/ARCHITECTURE.md): stack, systems, how to add content
 - [Asset specification](docs/ASSET_SPEC.md): what the art team delivers, exact sizes and rules
 - [Asset manifest format](docs/ASSET_MANIFEST.md): how assets are declared, validated and loaded
-- [Rig template package (v1.1)](docs/rig-template/README.md): the brief for the character rig test
+- [Rig template package (v1.2)](docs/rig-template/README.md): the brief for the character rig test
 - [Rig test v1 review](docs/reviews/rigtest-v1/README.md): why the first package was rejected

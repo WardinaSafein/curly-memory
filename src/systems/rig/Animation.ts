@@ -17,6 +17,12 @@ export type Channel = 'rot' | 'x' | 'y' | 'sx' | 'sy';
 export interface AnimationClip {
   duration: number;
   loop: boolean;
+  /**
+   * 'spline' (recommended): smooth Catmull-Rom curves through the keys, so motion carries through
+   * each key instead of stopping. 'eased' (legacy default): every segment eases in and out on its
+   * own, which makes the motion stop at every key. A key with an explicit ease always uses it.
+   */
+  interp?: 'spline' | 'eased';
   bones?: Record<string, Partial<Record<Channel, Key[]>>>;
   /** Step keys: [timeMs, state]. The state holds until the next key. */
   slots?: Record<string, [number, string][]>;
@@ -37,15 +43,45 @@ const EASES: Record<EaseName, (t: number) => number> = {
   step: () => 0,
 };
 
-export function sampleKeys(keys: Key[], t: number): number {
+export interface SampleOptions {
+  spline?: boolean;
+  /** Looping clips wrap the curve around (needs `duration`). */
+  loop?: boolean;
+  duration?: number;
+}
+
+/** Tangent (value per ms) at key i for a Catmull-Rom curve; flat at the ends of one-shot clips. */
+function tangent(keys: Key[], i: number, opts: SampleOptions): number {
+  const n = keys.length;
+  let prev: [number, number] | null = i > 0 ? [keys[i - 1][0], keys[i - 1][1]] : null;
+  let next: [number, number] | null = i < n - 1 ? [keys[i + 1][0], keys[i + 1][1]] : null;
+  if (opts.loop && opts.duration && n > 2) {
+    // first and last key are the same instant of a loop: use the neighbours across the seam
+    if (i === 0) prev = [keys[n - 2][0] - opts.duration, keys[n - 2][1]];
+    if (i === n - 1) next = [keys[1][0] + opts.duration, keys[1][1]];
+  }
+  if (!prev || !next) return 0;
+  const dt = next[0] - prev[0];
+  return dt === 0 ? 0 : (next[1] - prev[1]) / dt;
+}
+
+export function sampleKeys(keys: Key[], t: number, opts: SampleOptions = {}): number {
   if (keys.length === 0) return 0;
   if (t <= keys[0][0]) return keys[0][1];
   for (let i = 0; i < keys.length - 1; i++) {
-    const [t0, v0, ease = 'sine'] = keys[i];
+    const [t0, v0, ease] = keys[i];
     const [t1, v1] = keys[i + 1];
     if (t <= t1) {
-      const u = t1 === t0 ? 1 : (t - t0) / (t1 - t0);
-      return v0 + (v1 - v0) * EASES[ease](u);
+      const span = t1 - t0;
+      const u = span === 0 ? 1 : (t - t0) / span;
+      if (opts.spline && ease === undefined) {
+        // cubic Hermite with Catmull-Rom tangents: passes through every key, no stop at keys
+        const m0 = tangent(keys, i, opts) * span;
+        const m1 = tangent(keys, i + 1, opts) * span;
+        const u2 = u * u, u3 = u2 * u;
+        return (2 * u3 - 3 * u2 + 1) * v0 + (u3 - 2 * u2 + u) * m0 + (-2 * u3 + 3 * u2) * v1 + (u3 - u2) * m1;
+      }
+      return v0 + (v1 - v0) * EASES[ease ?? 'sine'](u);
     }
   }
   return keys[keys.length - 1][1];
@@ -70,7 +106,7 @@ export function sampleClip(clip: AnimationClip, timeMs: number): SampledPose {
     const pose: BonePose = { ...IDENTITY_POSE };
     for (const ch of Object.keys(DEFAULTS) as Channel[]) {
       const keys = channels[ch];
-      if (keys) pose[ch] = sampleKeys(keys, t);
+      if (keys) pose[ch] = sampleKeys(keys, t, { spline: clip.interp === 'spline', loop: clip.loop, duration: clip.duration });
     }
     bones[boneId] = pose;
   }

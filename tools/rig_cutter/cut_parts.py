@@ -293,7 +293,12 @@ def main():
     # ---- torso, pelvis, legs
     pelvis_poly = shape_mask(slots['pelvis']['shape'])
     free = S & (owner == '')
-    owner[free & torso_poly & (yy < 748)] = 'torso'
+    hem_poly = shape_mask(slots['hem']['shape'], 0) if 'hem' in slots else np.zeros((H, W), bool)
+    owner[free & (torso_poly | hem_poly) & (yy < 748)] = 'torso'
+    if 'hem' in slots:
+        # the jacket hem band is its own part (on the hem bone) so it can lag behind the body
+        hem_y = bones['hem']['pivot'][1]
+        owner[(owner == 'torso') & (yy >= hem_y)] = 'hem'
     free = S & (owner == '')
     owner[free & pelvis_poly] = 'pelvis'
     free = S & (owner == '')
@@ -339,10 +344,14 @@ def main():
     # (source image, owners it reveals: the parts it shows the area behind; None = anywhere)
     arm_owned = np.isin(owner, ARM_SLOTS)
     hidden_src = {s: [] for s in slots}
-    for s in ['torso', 'thigh_front', 'thigh_back', 'pelvis']:
-        hidden_src[s].append((ed['no_arms'], arm_owned))
-    hidden_src['pelvis'].insert(0, (ed['belt'], owner == 'torso'))
-    hidden_src['head'].append((ed['blank'], None))
+    for s in ['torso', 'thigh_front', 'thigh_back', 'pelvis', 'hem']:
+        if s in hidden_src:
+            hidden_src[s].append((ed['no_arms'], arm_owned))
+    hidden_src['pelvis'].insert(0, (ed['belt'], np.isin(owner, ['torso', 'hem'])))
+    if 'hem' in hidden_src:
+        # above its cut the hem continues as the real jacket (hidden under the torso)
+        hidden_src['hem'].insert(0, (T, owner == 'torso'))
+    # head: under the swinging fringe, the forehead skin is extended (extrusion), never hair
 
     parts = {}
     prob_fail = {}
@@ -359,11 +368,17 @@ def main():
         if sid == 'head':
             out[own, 3] = np.maximum(out[own, 3], T[own, 3])
         zone = shape_mask(slot['shape'], rig['jointOverlap'] + 6) & dilate(own, 90) & S_union & ~own
-        if sid.startswith('hair'):
-            zone &= np.zeros_like(zone)
+        if sid == 'hair_front':
+            zone &= np.zeros_like(zone)                     # top layer: nothing to hide under
+        if sid == 'hair_back':
+            # hair swings slightly: the back hair mass continues behind the head and fringe
+            zone = shape_mask(slot['shape'], 26) & dilate(own, 40) & ~own & np.isin(owner, ['head', 'hair_front'])
         if sid == 'head':
-            # head and hair share the head bone, so they never separate: no overlap into hair
-            zone &= ~np.isin(owner, ['hair_back', 'hair_front'])
+            # no copying of hair art into the head; under the fringe the skin is extended instead,
+            # except in the face-feature zones (the head stays skin-only there)
+            zone &= ~(owner == 'hair_back') & ~face_zone
+        if sid == 'torso' and 'hem' in slots:
+            zone &= ~(owner == 'hem')                       # the hem must be free to move
         above = np.zeros((H, W), bool)
         below = np.zeros((H, W), bool)
         for other, o in order.items():
@@ -422,6 +437,9 @@ def main():
             bleed &= ~face_zone          # the head stays skin-only in the feature zones
         if sid == 'hair_front':
             bsrc = ed['blank']           # hair overlaps the face with blank skin, never the design's eyes
+            bleed &= ~(owner == 'hair_back')    # the back hair's underlayer covers this join from behind
+        if sid == 'hair_back':
+            bleed &= ~(owner == 'hair_front')   # its underlayer already sits behind the fringe
         out[bleed] = bsrc[bleed]
         out[bleed, 3] = np.maximum(bsrc[bleed, 3], T[bleed, 3])
         # drop detached fragments: keep what is connected to the part's guide region

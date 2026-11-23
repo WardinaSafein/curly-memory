@@ -60,9 +60,9 @@ One character (the **approved CyberWR design**), one hairstyle, one outfit, one 
 test idle, blink, walk and surprise in the Rig Lab. The first package (v1) failed validation and is
 kept as a **design reference only** ([review](reviews/rigtest-v1/README.md)).
 
-### 4.1 Use rig template v1.1
+### 4.1 Use rig template v1.2
 
-Download **[`docs/rig-template/cyberwr_rig_template_v1_1.zip`](rig-template/cyberwr_rig_template_v1_1.zip)**
+Download **[`docs/rig-template/cyberwr_rig_template_v1_2.zip`](rig-template/cyberwr_rig_template_v1_2.zip)**
 and follow its [README](rig-template/README.md): it lists every part, what it contains and its
 must-paint points. Summary:
 
@@ -86,11 +86,11 @@ must-paint points. Summary:
 | Eyes (4) | `player_eyes_e01_{open, half, closed, wide}.png` | Inside x 520–606, y 312–354; same position in every state. |
 | Brows (2) | `player_brows_b01_{neutral, raised}.png` | Inside x 538–606, y 284–316. |
 | Mouth (3) | `player_mouth_m01_{neutral, smile, surprised}.png` | Inside x 545–593, y 362–396. |
-| Hair (2) | `player_hair_h01_{back, front}.png` | No pixel drawn in both. |
-| Outfit (12) | `player_outfit_o01_{torso, pelvis, upperarm_front, upperarm_back, forearm_front, forearm_back, thigh_front, thigh_back, shin_front, shin_back, foot_front, foot_back}.png` | Sleeves on the upper arms (not the torso). Rolled cuffs and the watch on the forearms. Boot shafts on the shins; lower boots on the feet. Belt on the pelvis, painted up under the jacket. |
+| Hair (2) | `player_hair_h01_{back, front}.png` | The back hair continues as a plain underlayer behind the fringe (the layers swing separately), but the fringe drawing itself is not repeated in it. |
+| Outfit (13) | `player_outfit_o01_{torso, hem, pelvis, upperarm_front, upperarm_back, forearm_front, forearm_back, thigh_front, thigh_back, shin_front, shin_back, foot_front, foot_back}.png` | The jacket hem band (below y = 703) is its own part, `hem`, so it can lag behind the body. Sleeves on the upper arms (not the torso). Rolled cuffs and the watch on the forearms. Boot shafts on the shins; lower boots on the feet. Belt on the pelvis, painted up under the jacket. |
 | Reference (1) | `player_ref_o01.png` | The assembled character (approved design with the front boot pointing right). |
 
-**28 files** + `palette.txt`, delivered as `cyberwr_rigtest_v2.zip`.
+**29 files** + `palette.txt`, delivered as `cyberwr_rigtest_v2.zip`.
 
 ### 4.3 Acceptance gates
 

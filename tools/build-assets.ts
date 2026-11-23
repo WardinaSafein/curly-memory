@@ -141,6 +141,14 @@ function covered(r: Raster, x: number, y: number, radius = 4): boolean {
   return false;
 }
 
+/** True if the pixel differs clearly in brightness from a neighbour (line art, highlights). */
+function detail(r: Raster, i: number): boolean {
+  const lumAt = (k: number): number => 0.299 * r.data[k * 4] + 0.587 * r.data[k * 4 + 1] + 0.114 * r.data[k * 4 + 2];
+  const l = lumAt(i);
+  const right = i + 1, down = i + r.width;
+  return (right < r.width * r.height && Math.abs(lumAt(right) - l) > 24) || (down < r.width * r.height && Math.abs(lumAt(down) - l) > 24);
+}
+
 /** True if every pixel within `r` px of (x, y) is opaque (i.e. not on the part's edge). */
 function interior(r: Raster, x: number, y: number, rad: number): boolean {
   for (let dy = -rad; dy <= rad; dy++) {
@@ -199,15 +207,26 @@ async function crossCheckRigParts(assets: DeclaredAsset[]): Promise<void> {
     if (d.a.rig!.slot === 'hair_back') {
       const front = delivered.get(d.a.key.replace(/\.back$/, '.front'));
       if (front) {
-        let frontPx = 0, both = 0;
+        // Underpainting behind the fringe is good (the hair layers swing separately); what is wrong
+        // is the fringe *drawing* duplicated in hair_back, which shows as a doubled fringe.
+        let frontPx = 0, both = 0, same = 0;
         for (let i = 0; i < d.r.width * d.r.height; i++) {
           if (!opaque(front.r, i)) continue;
+          // interior of the fringe only: a few px of shared edge is a seam overlap, not a duplicate
+          if (!interior(front.r, i % d.r.width, Math.floor(i / d.r.width), 3)) continue;
+          // detailed pixels only (strand lines, highlights): flat hair colour matching an
+          // underlayer is a coincidence of colour, a copied drawing repeats the detail
+          if (!detail(front.r, i)) continue;
           frontPx++;
-          if (opaque(d.r, i)) both++;
+          if (!opaque(d.r, i)) continue;
+          both++;
+          const j = i * 4;
+          const dc = Math.max(Math.abs(d.r.data[j] - front.r.data[j]), Math.abs(d.r.data[j + 1] - front.r.data[j + 1]), Math.abs(d.r.data[j + 2] - front.r.data[j + 2]));
+          if (dc < 10) same++;
         }
-        const share = frontPx ? both / frontPx : 0;
-        if (share > 0.5) note('error', d.a, `Contains the front hair as well (${Math.round(share * 100)}% of hair_front is painted here too). Keep only the hair behind the head.`);
-        else if (share > 0.15) note('warn', d.a, `${Math.round(share * 100)}% of hair_front is also painted in hair_back; keep the overlap to a thin blend edge.`);
+        const dup = frontPx ? same / frontPx : 0;
+        if (dup > 0.5) note('error', d.a, `Duplicates the front hair drawing (${Math.round(dup * 100)}% of hair_front is repeated pixel-for-pixel). Behind the fringe, paint plain hair underlayer instead.`);
+        else if (dup > 0.15) note('warn', d.a, `${Math.round(dup * 100)}% of hair_front is repeated pixel-for-pixel in hair_back.`);
       }
     }
     // 3. The head must be skin only: no dark eye or mouth line art in the feature zones.
@@ -285,7 +304,9 @@ async function main(): Promise<void> {
     if (a.trim) {
       const b = alphaBounds(raster, 0);
       if (b) {
-        const m = 2;
+        // rig parts are mipmapped: keep a wider transparent margin so smoothed (smaller) mip levels
+        // never sample across the texture edge (that shows as faint straight lines)
+        const m = a.type === 'rigPart' ? 8 : 2;
         const x = Math.max(0, b.x - m), y = Math.max(0, b.y - m);
         width = Math.min(raster.width, b.x + b.w + m) - x;
         height = Math.min(raster.height, b.y + b.h + m) - y;

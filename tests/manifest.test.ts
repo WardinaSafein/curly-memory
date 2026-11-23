@@ -19,7 +19,7 @@ describe('asset manifest', () => {
     expect(keys).toContain('fx.glyph.shield');
     expect(keys).toContain('player.eyes.e01.closed');
     expect(keys).toContain('player.ref.o01');
-    expect(assets.filter((a) => a.type === 'rigPart')).toHaveLength(27);
+    expect(assets.filter((a) => a.type === 'rigPart')).toHaveLength(28);
   });
 
   it('gives rig parts the shared canvas size and trimming', () => {

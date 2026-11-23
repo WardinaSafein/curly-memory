@@ -93,7 +93,7 @@ function labelSide(boneId: string): 'left' | 'right' | 'centre' {
 
 /** Label rows chosen so no two labels collide (centre and back-limb labels share the right column). */
 const LABEL_Y: Record<string, number> = {
-  head: 380, neck: 440, upperarm_back: 500, forearm_back: 650, torso: 708, pelvis: 750, hand_back: 800, thigh_back: 840,
+  head: 380, neck: 440, upperarm_back: 500, forearm_back: 650, hem: 684, torso: 716, pelvis: 750, hand_back: 800, thigh_back: 840,
   shin_back: 1090, foot_back: 1350, upperarm_front: 500, forearm_front: 650, hand_front: 760, thigh_front: 840, shin_front: 1090, foot_front: 1340,
 };
 

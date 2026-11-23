@@ -14,8 +14,8 @@ describe('player rig definition', () => {
     expect(validateRig(rig)).toEqual([]);
   });
 
-  it('needs 27 part images for one appearance (21 slots, face states expanded)', () => {
-    expect(rigPartsFor(rig, APPEARANCE)).toHaveLength(27);
+  it('needs 28 part images for one appearance (22 slots, face states expanded)', () => {
+    expect(rigPartsFor(rig, APPEARANCE)).toHaveLength(28);
   });
 
   it('places every joint at its template position in the drawn pose', () => {
@@ -121,5 +121,37 @@ describe('RigAnimator', () => {
     anim.update(clips.surprise.duration);
     await done;
     expect(anim.isPlaying('overlay')).toBe(false);
+  });
+});
+
+describe('animation polish', () => {
+  it('spline clips keep moving through their keys (no stop at every key)', () => {
+    const walk = clips.walk as AnimationClip;
+    expect(walk.interp).toBe('spline');
+    const keys = walk.bones!.upperarm_front.rot!;
+    // velocity just before and after an interior key should not both be ~0
+    const k = keys[5][0];
+    const v = (sampleClip(walk, k + 5).bones.upperarm_front.rot - sampleClip(walk, k - 5).bones.upperarm_front.rot) / 10;
+    expect(Math.abs(v)).toBeGreaterThan(0.005);
+  });
+
+  it('walk: the flat planted foot does not slide at the matched walk speed', () => {
+    const walk = clips.walk as AnimationClip;
+    const sk = new Skeleton(rig);
+    const c = rig.contacts!.foot_front;
+    const mid: [number, number] = [(c.points[0][0] + c.points[1][0]) / 2, c.points[0][1]];
+    const xs: number[] = [];
+    for (let p = 0.18; p <= 0.36; p += 0.02) {
+      sk.update(sampleClip(walk, p * walk.duration).bones);
+      xs.push(sk.canvasToRig('foot_front', mid)[0] + (rig.walkSpeed * p * walk.duration) / 1000);
+    }
+    // < 15 canvas px (~5 px at in-game scale) of drift while the foot is flat
+    expect(Math.max(...xs) - Math.min(...xs)).toBeLessThan(15);
+  });
+
+  it('hair and jacket hem have their own follow-through bones', () => {
+    for (const id of ['hair_back', 'hair_front', 'hem']) expect(rig.bones.some((b) => b.id === id)).toBe(true);
+    expect(clips.walk.bones!.hair_back).toBeDefined();
+    expect(clips.surprise.bones!.hem).toBeDefined();
   });
 });
