@@ -7,21 +7,23 @@
  *   docs/rig-template/rig_template_parts_map.png  colour-coded parts + draw order + file names
  *   docs/rig-template/guides/guide_<slot>.png     one transparent canvas per part, showing exactly where it goes
  *   docs/rig-template/rig_joints.json             joint coordinates and expected file names
- *   docs/rig-template/cyberwr_rig_template_v1.zip everything above + README, for download
+ *   docs/rig-template/rig_template_on_design.png   joints + part outlines over the approved design reference
+ *   docs/rig-template/cyberwr_rig_template_v<version>.zip  everything above + README, for download
  *
  *   npm run rig:template
  */
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import sharp from 'sharp';
-import { resolveTemplate, shapeBounds, type RigDef, type SlotDef } from '../src/systems/rig/RigDefinition';
+import { coverageProbes, resolveTemplate, shapeBounds, type RigDef, type SlotDef } from '../src/systems/rig/RigDefinition';
 import playerRig from '../src/content/characters/player.rig.json' with { type: 'json' };
 import declared from '../src/content/assets/manifest.json' with { type: 'json' };
 import { esc, FONT, grownShape, shapeElement, svgDoc } from './lib/svg';
 
 const rig = playerRig as unknown as RigDef;
 const ROOT = join(import.meta.dirname, '..');
+const VERSION_TAG = String(rig.version).replace(/\./g, '_');
 const OUT = join(ROOT, 'docs', 'rig-template');
 const W = rig.canvas.width;
 const H = rig.canvas.height;
@@ -69,8 +71,8 @@ function guideLines(): string {
     `<line x1="${rig.centerX}" y1="0" x2="${rig.centerX}" y2="${H}" stroke="#2e6fa8" stroke-width="1.5" stroke-dasharray="4 8"/>`,
     text(rig.centerX + 8, 162, `CENTRE  x = ${rig.centerX}`, { fill: '#2e6fa8', size: 14 }),
     // height bracket
-    `<path d="M 96 ${rig.skullTopY} H 120 M 108 ${rig.skullTopY} V ${rig.baselineY} M 96 ${rig.baselineY} H 120" stroke="#2e6fa8" stroke-width="2" fill="none"/>`,
-    `<text x="92" y="${(rig.skullTopY + rig.baselineY) / 2}" font-family="${FONT}" font-size="18" font-weight="700" fill="#2e6fa8" text-anchor="middle" transform="rotate(-90 92 ${(rig.skullTopY + rig.baselineY) / 2})">${rig.baselineY - rig.skullTopY} px  sole → skull top</text>`,
+    `<path d="M 40 ${rig.skullTopY} H 64 M 52 ${rig.skullTopY} V ${rig.baselineY} M 40 ${rig.baselineY} H 64" stroke="#2e6fa8" stroke-width="2" fill="none"/>`,
+    `<text x="38" y="${(rig.skullTopY + rig.baselineY) / 2}" font-family="${FONT}" font-size="18" font-weight="700" fill="#2e6fa8" text-anchor="middle" transform="rotate(-90 38 ${(rig.skullTopY + rig.baselineY) / 2})">${rig.baselineY - rig.skullTopY} px  sole → skull top</text>`,
     text(p + 6, p + 118, `${p}px padding: keep the border empty`, { size: 13, fill: '#c0392b' }),
   ].join('');
 }
@@ -89,6 +91,18 @@ function labelSide(boneId: string): 'left' | 'right' | 'centre' {
   return 'centre';
 }
 
+/** Label rows chosen so no two labels collide (centre and back-limb labels share the right column). */
+const LABEL_Y: Record<string, number> = {
+  head: 380, neck: 440, upperarm_back: 500, forearm_back: 650, torso: 708, pelvis: 750, hand_back: 800, thigh_back: 840,
+  shin_back: 1090, foot_back: 1350, upperarm_front: 500, forearm_front: 650, hand_front: 760, thigh_front: 840, shin_front: 1090, foot_front: 1340,
+};
+
+/** Small diamonds marking points that must be painted (hidden overlap), validated by the build. */
+function probeMarkers(slots: SlotDef[], color = '#1f6f8b'): string {
+  return slots.flatMap((s) => coverageProbes(rig, s)).map(([x, y]) =>
+    `<path d="M ${x} ${y - 7} L ${x + 7} ${y} L ${x} ${y + 7} L ${x - 7} ${y} Z" fill="${color}" stroke="#ffffff" stroke-width="1.5"/>`).join('');
+}
+
 function jointLabels(): string {
   let out = '';
   for (const bone of rig.bones) {
@@ -96,12 +110,14 @@ function jointLabels(): string {
     const [x, y] = bone.pivot;
     const side = labelSide(bone.id);
     const t = `${bone.label ?? bone.id} (${x}, ${y})`;
-    if (side === 'left') out += `<line x1="${x - 12}" y1="${y}" x2="${x - 60}" y2="${y}" stroke="#c0392b" stroke-width="1.5"/>` + text(x - 64, y + 5, t, { anchor: 'end', size: 14 });
-    else if (side === 'right') out += `<line x1="${x + 12}" y1="${y}" x2="${x + 70}" y2="${y}" stroke="#c0392b" stroke-width="1.5"/>` + text(x + 74, y + 5, t, { size: 14 });
-    else {
-      const lx = 760;
-      const ly = ({ head: 372, neck: 445, torso: 752, pelvis: 796 } as Record<string, number>)[bone.id] ?? y;
-      out += `<path d="M ${x + 12} ${y} L ${lx - 8} ${ly - 5}" stroke="#c0392b" stroke-width="1.5" fill="none"/>` + text(lx, ly, t, { size: 14 });
+    // Labels sit in clear columns left (front limbs) and right (back limbs, centre bones) of the figure.
+    const ly = LABEL_Y[bone.id] ?? y;
+    if (side === 'left') {
+      const lx = Math.min(x - 64, 228);
+      out += `<path d="M ${x - 12} ${y} L ${lx + 4} ${ly - 5}" stroke="#c0392b" stroke-width="1.5" fill="none"/>` + text(lx, ly, t, { anchor: 'end', size: 14 });
+    } else {
+      const lx = 790;
+      out += `<path d="M ${x + 12} ${y} L ${lx - 6} ${ly - 5}" stroke="#c0392b" stroke-width="1.5" fill="none"/>` + text(lx, ly, t, { size: 14 });
     }
     out += jointMarker(x, y);
   }
@@ -138,16 +154,16 @@ async function render(svg: string, file: string): Promise<void> {
 async function main(): Promise<void> {
   // Regenerate outputs but keep the hand-written README.md in the folder.
   rmSync(join(OUT, 'guides'), { recursive: true, force: true });
-  rmSync(join(OUT, 'cyberwr_rig_template_v1.zip'), { force: true });
+  for (const f of readdirSync(OUT)) if (/^cyberwr_rig_template_.*\.zip$/.test(f)) rmSync(join(OUT, f), { force: true });
   mkdirSync(join(OUT, 'guides'), { recursive: true });
 
   // 1. Labelled guide
   const guide = svgDoc(W, H,
     grid() + guideLines() +
     mannequin({ fill: (s) => (isBackLimb(s) ? '#d9cfbf' : '#ebe2d3'), stroke: (s) => s.color ?? '#999', strokeWidth: 3, includeHair: false, includeFace: false }) +
-    overlapZones() + faceZones() + hairZone() + jointLabels() + header('CyberWR · Player rig template') +
+    overlapZones() + faceZones() + hairZone() + probeMarkers(rig.slots) + jointLabels() + header(`CyberWR · Player rig template v${rig.version}`) +
     `<rect x="130" y="${legendY - 24}" width="${W - 260}" height="46" rx="8" fill="#fff8ec" stroke="#ddd2c0"/>` +
-    text(W / 2, legendY - 4, 'Solid outline = part shape · dashed = paint ~30px PAST each joint (hidden overlap)', { size: 14, anchor: 'middle', halo: false }) +
+    text(W / 2, legendY - 4, 'Solid = part shape · dashed = paint ~30px PAST each joint · ◆ = must be painted (checked)', { size: 14, anchor: 'middle', halo: false }) +
     text(W / 2, legendY + 15, 'Paint every part on its own transparent 1024×1536 canvas, in exactly this position.', { size: 14, anchor: 'middle', halo: false }),
     '#faf6ef');
   await render(guide, join(OUT, 'rig_template_guide.png'));
@@ -193,7 +209,7 @@ async function main(): Promise<void> {
       `<g opacity="0.35">${ctx}</g>` +
       (isFace(s) ? '' : shapeElement(grownShape(s.shape, isHair(s) ? 24 : rig.jointOverlap), `fill="${s.color}" fill-opacity="0.12" stroke="${s.color}" stroke-width="2" stroke-dasharray="6 6"`)) +
       shapeElement(s.shape, `fill="${s.color}" fill-opacity="0.45" stroke="${s.color}" stroke-width="3"`) +
-      jointMarker(bone.pivot[0], bone.pivot[1]) +
+      jointMarker(bone.pivot[0], bone.pivot[1]) + probeMarkers([s]) +
       `<rect x="24" y="24" width="${W - 48}" height="${s.states ? 92 : 70}" rx="10" fill="#2b2130" opacity="0.9"/>` +
       text(40, 56, `${s.id}  →  pivot ${bone.label ?? bone.id} (${bone.pivot[0]}, ${bone.pivot[1]})`, { size: 20, weight: 800, fill: '#fff8ec', halo: false }) +
       text(40, 84, files.length > 70 ? files.slice(0, 70) + '…' : files, { size: 14, weight: 500, fill: '#e8dccb', halo: false }) +
@@ -211,6 +227,7 @@ async function main(): Promise<void> {
     centerX: rig.centerX,
     padding: rig.padding,
     jointOverlap: rig.jointOverlap,
+    restPose: rig.restPose,
     joints: rig.bones.map((b) => ({ id: b.id, label: b.label, x: b.pivot[0], y: b.pivot[1], parent: b.parent })),
     parts: rig.slots.map((s, i) => ({
       drawOrder: i + 1,
@@ -218,11 +235,24 @@ async function main(): Promise<void> {
       attachedTo: s.bone,
       files: s.states ? s.states.map((st) => `assets-src/characters/player/${fileFor(s, st)}`) : [`assets-src/characters/player/${fileFor(s)}`],
       approxBounds: shapeBounds(s.shape),
+      mustPaint: coverageProbes(rig, s),
     })),
   }, null, 2) + '\n');
 
-  // 6. Downloadable package
-  const zip = join(OUT, 'cyberwr_rig_template_v1.zip');
+  // 6. Joints and part outlines over the approved design reference
+  const design = join(OUT, 'design_reference.png');
+  if (existsSync(design)) {
+    const faded = await sharp({ create: { width: W, height: H, channels: 4, background: '#ffffff' } })
+      .composite([{ input: design }, { input: Buffer.from(svgDoc(W, H, '<rect width="100%" height="100%" fill="#ffffff" fill-opacity="0.35"/>')) }])
+      .png().toBuffer();
+    const overlay = svgDoc(W, H,
+      rig.slots.filter((sl) => !isFace(sl)).map((sl) => shapeElement(sl.shape, `fill="none" stroke="${sl.color}" stroke-width="2.5" stroke-dasharray="${isHair(sl) ? '3 5' : 'none'}"`)).join('') +
+      faceZones() + probeMarkers(rig.slots) + jointLabels() + header(`Rig v${rig.version} on the approved design`));
+    await sharp(faded).composite([{ input: Buffer.from(overlay) }]).png({ compressionLevel: 9 }).toFile(join(OUT, 'rig_template_on_design.png'));
+  }
+
+  // 7. Downloadable package
+  const zip = join(OUT, `cyberwr_rig_template_v${VERSION_TAG}.zip`);
   try {
     execFileSync('zip', ['-r', '-q', '-X', zip, '.', '-x', '*.zip'], { cwd: OUT });
   } catch {

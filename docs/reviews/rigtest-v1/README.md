@@ -1,5 +1,9 @@
 # Rig test v1: review (`CyberWR_Rig_Test.zip`)
 
+> **Outcome:** Option B was chosen. The rig was refitted to the approved design as
+> [template v1.1](../../rig-template/README.md). This package is kept as a design reference only;
+> its part files are not reused.
+
 **Status: DRAFT, not accepted.** The art is not committed to the repository; it was validated locally
 only. Reviewed on 2026-11-23 against rig template v1 (`docs/rig-template/`).
 

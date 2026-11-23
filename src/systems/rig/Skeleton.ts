@@ -68,7 +68,15 @@ export class Skeleton {
   private readonly parents = new Map<string, string | null>();
   readonly world = new Map<string, Mat2D>();
 
-  constructor(readonly rig: RigDef) {
+  private readonly rest: Record<string, BonePose> = {};
+
+  /** `useRestPose: false` evaluates the pose exactly as drawn in the template (used by tools/tests). */
+  constructor(readonly rig: RigDef, opts: { useRestPose?: boolean } = {}) {
+    if (opts.useRestPose ?? true) {
+      for (const [id, r] of Object.entries(rig.restPose ?? {})) {
+        this.rest[id] = { rot: r.rot ?? 0, x: r.x ?? 0, y: r.y ?? 0, sx: 1, sy: 1 };
+      }
+    }
     const pivots = new Map(rig.bones.map((b) => [b.id, b.pivot] as const));
     this.order = rig.bones.map((b) => b.id);
     for (const bone of rig.bones) {
@@ -82,7 +90,10 @@ export class Skeleton {
   /** Recompute world matrices from per-bone poses (missing bones use the rest pose). */
   update(poses: Partial<Record<string, BonePose>>): void {
     for (const id of this.order) {
-      const local = localMatrix(this.offsets.get(id)!, poses[id] ?? IDENTITY_POSE);
+      const anim = poses[id] ?? IDENTITY_POSE;
+      const rest = this.rest[id];
+      const pose = rest ? { ...anim, rot: anim.rot + rest.rot, x: anim.x + rest.x, y: anim.y + rest.y } : anim;
+      const local = localMatrix(this.offsets.get(id)!, pose);
       const parent = this.parents.get(id);
       this.world.set(id, parent ? multiply(this.world.get(parent)!, local) : local);
     }

@@ -99,8 +99,16 @@ AI-generated art consistent between frames.
 - **`player.rig.json`** is the single source of truth: bones (joint pivots on the shared
   1024×1536 canvas), slots (one per part, in draw order), part file templates and guide shapes.
   The rig template PNGs, the placeholders and the runtime skeleton are all generated from it.
+  Rig **v1.1** is fitted to the approved character design (`docs/rig-template/design_reference.png`).
 - **`Skeleton`**: forward kinematics; each bone has a rest offset from its parent plus animated
   rotation / translation / scale.
+- **`restPose`** (in the rig): a code-side correction applied under every animation. v1.1 relaxes the
+  design's wide-set arms by ~8° so the art can be drawn exactly as designed.
+- **Coverage probes**: points ~20 px past each joint (capsule ends plus explicit `mustCover`
+  points) that every delivered part must paint. They are drawn as ◆ in the template and enforced
+  by the validator, which turns "paint the hidden overlap" into a pass/fail check.
+- **`contacts`** (foot sole points) let `npm run rig:fit-walk -- --write` recompute the walk's pelvis
+  bob and the stride-matched walk speed whenever the leg joints change.
 - **`Animation` / `RigAnimator`**: keyframe clips (`player.anims.json`) evaluated on three
   layers: `base` (idle/walk, cross-faded), `face` (blink), `overlay` (additive reactions such
   as surprise). Slot keys swap part states (eyes open/half/closed/wide, mouth shapes).
@@ -118,7 +126,7 @@ other expressions) waits until the rig test is approved.
 **Rig Lab** (`?scene=riglab`) is the review tool for rig deliveries. It provides:
 
 - animation buttons and 0.25×/0.5×/1× speed;
-- template overlay and onion-skin of the artist's reference render;
+- overlays of the template, the approved design and the artist's reference render;
 - bone view and face zoom;
 - lighting presets (desk lamp, town dusk) and backdrops;
 - an in-game-size preview that really walks, so foot sliding is visible;
@@ -223,6 +231,7 @@ npm run typecheck
 npm run build        # production build in dist/
 npm run assets:validate   # check art deliveries only (exit code 1 on errors)
 npm run rig:template      # regenerate docs/rig-template/ from player.rig.json
+npm run rig:fit-walk -- --write   # refit walk bob + speed after changing leg joints
 npm run smoke        # headless run of every scene + screenshots (needs Playwright + Chromium)
 ```
 

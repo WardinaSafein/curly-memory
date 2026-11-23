@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import anims from '../src/content/characters/player.anims.json';
 import rigJson from '../src/content/characters/player.rig.json';
 import { RigAnimator, sampleClip, type AnimationClip, type ClipLibrary } from '../src/systems/rig/Animation';
-import { rigPartsFor, validateRig, type RigDef } from '../src/systems/rig/RigDefinition';
+import { coverageProbes, rigPartsFor, validateRig, type RigDef } from '../src/systems/rig/RigDefinition';
 import { Skeleton } from '../src/systems/rig/Skeleton';
 
 const rig = rigJson as unknown as RigDef;
@@ -18,13 +18,34 @@ describe('player rig definition', () => {
     expect(rigPartsFor(rig, APPEARANCE)).toHaveLength(27);
   });
 
-  it('places every joint at its template position in the rest pose', () => {
-    const sk = new Skeleton(rig);
+  it('places every joint at its template position in the drawn pose', () => {
+    const sk = new Skeleton(rig, { useRestPose: false });
     const [rx, ry] = rig.bones[0].pivot;
     for (const bone of rig.bones) {
       const m = sk.world.get(bone.id)!;
       expect(m.tx).toBeCloseTo(bone.pivot[0] - rx, 6);
       expect(m.ty).toBeCloseTo(bone.pivot[1] - ry, 6);
+    }
+  });
+
+  it('relaxes the arms toward the body with the code-side rest pose', () => {
+    const drawn = new Skeleton(rig, { useRestPose: false });
+    const relaxed = new Skeleton(rig);
+    // Front wrist moves right (toward the body), back wrist moves left.
+    expect(relaxed.world.get('hand_front')!.tx).toBeGreaterThan(drawn.world.get('hand_front')!.tx + 10);
+    expect(relaxed.world.get('hand_back')!.tx).toBeLessThan(drawn.world.get('hand_back')!.tx - 10);
+    // Legs and head are untouched.
+    expect(relaxed.world.get('foot_front')!.tx).toBeCloseTo(drawn.world.get('foot_front')!.tx, 6);
+  });
+
+  it('keeps every must-paint probe on the canvas and inside the padding', () => {
+    for (const slot of rig.slots) {
+      for (const [x, y] of coverageProbes(rig, slot)) {
+        expect(x, slot.id).toBeGreaterThan(rig.padding);
+        expect(y, slot.id).toBeGreaterThan(rig.padding);
+        expect(x, slot.id).toBeLessThan(rig.canvas.width - rig.padding);
+        expect(y, slot.id).toBeLessThan(rig.canvas.height - rig.padding);
+      }
     }
   });
 
@@ -34,18 +55,18 @@ describe('player rig definition', () => {
 });
 
 describe('animation clips', () => {
-  const lowestFootY = (sk: Skeleton): { front: number; back: number } => ({
-    front: Math.max(sk.canvasToRig('foot_front', [436, 1440])[1], sk.canvasToRig('foot_front', [548, 1440])[1]),
-    back: Math.max(sk.canvasToRig('foot_back', [538, 1432])[1], sk.canvasToRig('foot_back', [646, 1432])[1]) + 8,
-  });
+  /** Height of each foot's lowest contact point above its own ground (negative = above, positive = sunk). */
+  const footGaps = (sk: Skeleton): number[] => {
+    const ry = rig.bones[0].pivot[1];
+    return Object.entries(rig.contacts!).map(([bone, c]) => Math.max(...c.points.map((p) => sk.canvasToRig(bone, p)[1] + ry)) - c.groundY);
+  };
 
   it('walk: the planted foot stays on the ground (no floating or sinking)', () => {
     const sk = new Skeleton(rig);
     for (let t = 0; t < 1000; t += 25) {
       sk.update(sampleClip(clips.walk, t).bones);
-      const { front, back } = lowestFootY(sk);
       // The lower of the two feet is the planted one; allow a few px of interpolation slack.
-      expect(Math.abs(Math.max(front, back))).toBeLessThan(10);
+      expect(Math.abs(Math.max(...footGaps(sk))), `t=${t}`).toBeLessThan(10);
     }
   });
 

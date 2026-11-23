@@ -21,6 +21,7 @@ export class RigLabScene extends Phaser.Scene {
   private small!: CutoutRig;
   private overlay: Phaser.GameObjects.Image | null = null;
   private reference: Phaser.GameObjects.Image | null = null;
+  private design: Phaser.GameObjects.Image | null = null;
   private view = { x: 560, y: 1010, scale: 0.6 };
   private readonly toggles = new Map<string, Button>();
   private backdrop!: Phaser.GameObjects.Rectangle;
@@ -39,6 +40,9 @@ export class RigLabScene extends Phaser.Scene {
 
     if (this.textures.exists('dev.rig_template')) {
       this.overlay = this.add.image(0, 0, 'dev.rig_template').setOrigin(0).setAlpha(0.45).setVisible(false);
+    }
+    if (this.textures.exists('dev.design_ref')) {
+      this.design = this.add.image(0, 0, 'dev.design_ref').setOrigin(0).setAlpha(0.5).setVisible(false).setDepth(4);
     }
     const refKey = `player.ref.${services.state.appearance.outfit}`;
     if (this.textures.exists(refKey)) {
@@ -61,7 +65,7 @@ export class RigLabScene extends Phaser.Scene {
   private syncOverlays(): void {
     const s = this.view.scale;
     const flip = this.big.facing === 'left';
-    for (const img of [this.overlay, this.reference]) {
+    for (const img of [this.overlay, this.design, this.reference]) {
       if (!img) continue;
       const [rx, ry] = playerRig.bones[0].pivot;
       img.setScale(s).setFlipX(flip);
@@ -76,7 +80,8 @@ export class RigLabScene extends Phaser.Scene {
       this.add.text(x0, y, t, { fontFamily: FontFamily, fontSize: '22px', fontStyle: 'bold', color: '#f6bd60' });
       y += 36;
     };
-    this.add.text(x0, y, 'Rig Lab · player rig v1', { fontFamily: FontFamily, fontSize: '36px', fontStyle: 'bold', color: '#fff8ec' });
+    new Button(this, 1840, 62, 'Menu', () => gotoTitle(this), { width: 120, height: 52, fontSize: 20 });
+    this.add.text(x0, y, `Rig Lab · player rig v${playerRig.version}`, { fontFamily: FontFamily, fontSize: '36px', fontStyle: 'bold', color: '#fff8ec' });
     y += 64;
 
     const row = (items: [string, () => void, string?][], width = 160): void => {
@@ -98,15 +103,15 @@ export class RigLabScene extends Phaser.Scene {
     heading('Checks');
     row([
       ['Template', () => this.toggleVisible(this.overlay, 'template'), 'template'],
+      ['Design', () => this.toggleVisible(this.design, 'design'), 'design'],
       ['Reference', () => this.toggleVisible(this.reference, 'reference'), 'reference'],
       ['Bones', () => this.toggleBones(), 'bones'],
-      ['Flip', () => { this.big.setFacing(this.big.facing === 'left' ? 'right' : 'left'); }],
     ]);
     row([
       ['Auto-blink', () => this.toggleBlink(), 'blink'],
       ['Face zoom', () => this.toggleZoom(), 'zoom'],
       ['Backdrop', () => this.cycleBackdrop()],
-      ['Menu', () => gotoTitle(this)],
+      ['Flip', () => { this.big.setFacing(this.big.facing === 'left' ? 'right' : 'left'); }],
     ]);
 
     heading('Scene lighting (multiply tint)');

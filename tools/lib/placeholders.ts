@@ -4,7 +4,7 @@
  * assets-src/. Placeholders go through exactly the same pipeline as real art.
  */
 import type { DeclaredAsset } from '../../src/core/AssetManifest';
-import type { RigDef, SlotDef } from '../../src/systems/rig/RigDefinition';
+import { shapeBounds, type RigDef, type SlotDef } from '../../src/systems/rig/RigDefinition';
 import { esc, FONT, grownShape, shade, shapeElement, svgDoc } from './svg';
 
 const INK = '#3b2a26';
@@ -193,31 +193,35 @@ function streaks(w: number, h: number): string {
 
 // ---- rig parts -------------------------------------------------------------
 
+/** Placeholder face features, laid out inside each slot's zone so they follow rig changes. */
 function rigFace(slot: SlotDef, state: string): string {
-  const line = `stroke="${INK}" stroke-width="5" stroke-linecap="round" fill="none"`;
+  const z = shapeBounds(slot.shape);
+  const line = `stroke="${INK}" stroke-width="4" stroke-linecap="round" fill="none"`;
   if (slot.id === 'eyes') {
-    const eyes: [number, number, number][] = [[562, 302, 1], [612, 300, 0.72]];
+    const cy = z.y + z.h / 2;
+    // Near eye larger, far eye foreshortened (3/4 view facing right).
+    const eyes: [number, number, number][] = [[z.x + z.w * 0.3, cy, 1], [z.x + z.w * 0.82, cy + 1, 0.7]];
     return eyes.map(([x, y, k]) => {
-      if (state === 'closed') return `<path d="M ${x - 15 * k} ${y} Q ${x} ${y + 9} ${x + 15 * k} ${y}" ${line}/>`;
+      if (state === 'closed') return `<path d="M ${x - 13 * k} ${y} Q ${x} ${y + 8} ${x + 13 * k} ${y}" ${line}/>`;
       const big = state === 'wide' ? 1.25 : 1;
-      const rx = 14 * k * big, ry = 17 * big;
-      const iris = `<circle cx="${x + 3 * k}" cy="${y + 2}" r="${(state === 'wide' ? 7 : 9) * k}" fill="#3d2b23"/><circle cx="${x + 6 * k}" cy="${y - 3}" r="${3 * k}" fill="#fff"/>`;
-      const white = `<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" fill="#fffaf2" stroke="${INK}" stroke-width="4"/>`;
-      if (state === 'half') {
-        return `${white}${iris}<path d="M ${x - rx - 2} ${y} A ${rx + 2} ${ry + 2} 0 0 1 ${x + rx + 2} ${y} Z" fill="#e0a37f" stroke="${INK}" stroke-width="4"/>`;
-      }
+      const rx = 12 * k * big, ry = 14 * big;
+      const iris = `<circle cx="${x + 3 * k}" cy="${y + 2}" r="${(state === 'wide' ? 6 : 8) * k}" fill="#3d2b23"/><circle cx="${x + 5 * k}" cy="${y - 2}" r="${2.5 * k}" fill="#fff"/>`;
+      const white = `<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" fill="#fffaf2" stroke="${INK}" stroke-width="3.5"/>`;
+      if (state === 'half') return `${white}${iris}<path d="M ${x - rx - 2} ${y} A ${rx + 2} ${ry + 2} 0 0 1 ${x + rx + 2} ${y} Z" fill="#e8a477" stroke="${INK}" stroke-width="3.5"/>`;
       return white + iris;
     }).join('');
   }
   if (slot.id === 'brows') {
-    const lift = state === 'raised' ? -12 : 0;
-    return `<path d="M 544 ${266 + lift} Q 562 ${256 + lift * 1.4} 580 ${263 + lift}" stroke="${INK}" stroke-width="7" stroke-linecap="round" fill="none"/>
-      <path d="M 598 ${262 + lift} Q 612 ${254 + lift * 1.4} 626 ${260 + lift}" stroke="${INK}" stroke-width="6" stroke-linecap="round" fill="none"/>`;
+    const lift = state === 'raised' ? -9 : 0;
+    const y = z.y + z.h * 0.65;
+    const a = z.x + z.w * 0.05, b = z.x + z.w * 0.5, c = z.x + z.w * 0.65, d = z.x + z.w * 0.95;
+    return `<path d="M ${a} ${y + lift} Q ${(a + b) / 2} ${y - 8 + lift * 1.4} ${b} ${y - 2 + lift}" stroke="${INK}" stroke-width="6" stroke-linecap="round" fill="none"/>
+      <path d="M ${c} ${y - 2 + lift} Q ${(c + d) / 2} ${y - 8 + lift * 1.4} ${d} ${y - 3 + lift}" stroke="${INK}" stroke-width="5" stroke-linecap="round" fill="none"/>`;
   }
-  // mouth
-  if (state === 'surprised') return `<ellipse cx="594" cy="370" rx="11" ry="14" fill="#6b2f36" stroke="${INK}" stroke-width="4"/>`;
-  if (state === 'smile') return `<path d="M 576 362 Q 594 382 614 360" ${line}/>`;
-  return `<path d="M 580 370 Q 594 374 608 368" ${line}/>`;
+  const cx = z.x + z.w * 0.55, cy = z.y + z.h * 0.5;
+  if (state === 'surprised') return `<ellipse cx="${cx}" cy="${cy}" rx="9" ry="12" fill="#6b2f36" stroke="${INK}" stroke-width="3.5"/>`;
+  if (state === 'smile') return `<path d="M ${cx - 16} ${cy - 4} Q ${cx} ${cy + 12} ${cx + 16} ${cy - 6}" ${line}/>`;
+  return `<path d="M ${cx - 12} ${cy} Q ${cx} ${cy + 4} ${cx + 12} ${cy - 2}" ${line}/>`;
 }
 
 export function rigPartSvg(rig: RigDef, slotId: string, state: string | undefined): string {
@@ -236,10 +240,18 @@ export function rigPartSvg(rig: RigDef, slotId: string, state: string | undefine
     `<g clip-path="url(#${clipId})">` +
     `<rect x="0" y="0" width="${width}" height="${height}" fill="${shade(color, -0.25)}" opacity="0.55" transform="translate(${shapeCenterX(slot) + 8} 0)"/></g>` +
     shapeElement(shape, `fill="none" stroke="${INK}" stroke-width="5" stroke-linejoin="round"`) +
-    (slot.id === 'head'
-      ? `<ellipse cx="462" cy="312" rx="16" ry="24" fill="${shade(color, -0.12)}" stroke="${INK}" stroke-width="4"/><path d="M 628 310 Q 642 332 624 338" fill="none" stroke="${INK}" stroke-width="4" stroke-linecap="round"/>`
-      : '');
+    (slot.id === 'head' ? headDetails(rig, color) : '');
   return svgDoc(width, height, body);
+}
+
+/** Ear and nose for the placeholder head, placed relative to the eye zone. */
+function headDetails(rig: RigDef, color: string): string {
+  const eyes = shapeBounds(rig.slots.find((sl) => sl.id === 'eyes')!.shape);
+  const head = shapeBounds(rig.slots.find((sl) => sl.id === 'head')!.shape);
+  const earX = head.x + 26, earY = eyes.y + eyes.h + 16;
+  const noseX = eyes.x + eyes.w - 6, noseY = eyes.y + eyes.h + 6;
+  return `<ellipse cx="${earX}" cy="${earY}" rx="14" ry="22" fill="${shade(color, -0.12)}" stroke="${INK}" stroke-width="4"/>` +
+    `<path d="M ${noseX} ${noseY - 10} Q ${noseX + 12} ${noseY + 8} ${noseX - 4} ${noseY + 12}" fill="none" stroke="${INK}" stroke-width="4" stroke-linecap="round"/>`;
 }
 
 function shapeCenterX(slot: SlotDef): number {

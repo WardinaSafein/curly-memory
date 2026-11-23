@@ -10,7 +10,7 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, wri
 import { dirname, join, relative } from 'node:path';
 import sharp from 'sharp';
 import { expandManifest, type DeclaredAsset, type DeclaredManifest, type RuntimeAsset, type RuntimeManifest } from '../src/core/AssetManifest';
-import { shapeBounds, type RigDef } from '../src/systems/rig/RigDefinition';
+import { coverageProbes, shapeBounds, type RigDef } from '../src/systems/rig/RigDefinition';
 import playerRig from '../src/content/characters/player.rig.json' with { type: 'json' };
 import declared from '../src/content/assets/manifest.json' with { type: 'json' };
 import { placeholderSvg } from './lib/placeholders';
@@ -109,7 +109,6 @@ function validatePixels(a: DeclaredAsset, r: Raster): void {
   if (a.rig) {
     const rig = rigs[a.rig.id];
     const slot = rig.slots.find((s) => s.id === a.rig!.slot)!;
-    const bone = rig.bones.find((b) => b.id === slot.bone)!;
     const art = alphaBounds(r);
     const guide = shapeBounds(slot.shape);
     if (!art) {
@@ -121,12 +120,94 @@ function validatePixels(a: DeclaredAsset, r: Raster): void {
     const off = Math.hypot(dx, dy);
     const tolerance = Math.max(40, 0.45 * Math.max(guide.w, guide.h));
     if (off > tolerance) note('warn', a, `Misaligned: art centre is ${Math.round(off)}px from the template position (dx ${Math.round(dx)}, dy ${Math.round(dy)}).`);
-    // Hair hangs from the head bone and never has to reach the head pivot (chin), so it is exempt.
-    if (!slot.states && slot.family !== 'hair') {
-      const [px, py] = bone.pivot;
-      const reach = rig.jointOverlap;
-      const outside = Math.max(art.x - px, px - (art.x + art.w), art.y - py, py - (art.y + art.h));
-      if (outside > -Math.min(10, reach / 3)) note('warn', a, `Art does not extend past its joint at (${px}, ${py}); paint ~${reach}px of overlap there.`);
+    // Hidden overlap: every probe point (past each joint) must be painted.
+    const missing = coverageProbes(rig, slot).filter(([x, y]) => !covered(r, x, y));
+    for (const [x, y] of missing) {
+      const near = rig.bones.filter((b) => b.parent).reduce((best, b) => (Math.hypot(b.pivot[0] - x, b.pivot[1] - y) < Math.hypot(best.pivot[0] - x, best.pivot[1] - y) ? b : best));
+      note('error', a, `Hidden overlap not painted at (${x}, ${y}): paint ~${rig.jointOverlap}px past ${near.label ?? near.id} (${near.pivot[0]}, ${near.pivot[1]}).`);
+    }
+  }
+}
+
+/** True if any opaque pixel lies within `radius` px of (x, y). */
+function covered(r: Raster, x: number, y: number, radius = 4): boolean {
+  for (let dy = -radius; dy <= radius; dy++) {
+    for (let dx = -radius; dx <= radius; dx++) {
+      const px = x + dx, py = y + dy;
+      if (px < 0 || py < 0 || px >= r.width || py >= r.height) continue;
+      if (r.data[(py * r.width + px) * 4 + 3] > 128) return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Checks that need several rig parts at once (run before the main loop so
+ * failures fall back to placeholders): duplicated expression states, hair drawn
+ * in both layers, and facial features baked into the head.
+ */
+async function crossCheckRigParts(assets: DeclaredAsset[]): Promise<void> {
+  const delivered = new Map<string, { a: DeclaredAsset; r: Raster }>();
+  for (const a of assets) {
+    if (!a.rig) continue;
+    const path = join(SRC, a.file);
+    if (!existsSync(path)) continue;
+    const { raster } = await rasterFromFile(path);
+    if (raster.width === a.size[0] && raster.height === a.size[1]) delivered.set(a.key, { a, r: raster });
+  }
+  const opaque = (r: Raster, i: number): boolean => r.data[i * 4 + 3] > 128;
+  const opaqueCount = (r: Raster): number => { let n = 0; for (let i = 0; i < r.width * r.height; i++) if (opaque(r, i)) n++; return n; };
+
+  // 1. Expression states must be different drawings.
+  const bySlot = new Map<string, { a: DeclaredAsset; r: Raster }[]>();
+  for (const d of delivered.values()) {
+    if (!d.a.rig?.state) continue;
+    const group = d.a.key.slice(0, d.a.key.lastIndexOf('.'));
+    bySlot.set(group, [...(bySlot.get(group) ?? []), d]);
+  }
+  for (const states of bySlot.values()) {
+    for (let i = 1; i < states.length; i++) {
+      const twin = states.slice(0, i).find((o) => o.r.data.equals(states[i].r.data));
+      if (twin && opaqueCount(states[i].r) > 0) {
+        note('error', states[i].a, `Identical to the "${twin.a.rig!.state}" state; each state must be its own drawing.`);
+      }
+    }
+  }
+
+  for (const d of delivered.values()) {
+    const rig = rigs[d.a.rig!.id];
+    // 2. Hair must not be drawn in both layers.
+    if (d.a.rig!.slot === 'hair_back') {
+      const front = delivered.get(d.a.key.replace(/\.back$/, '.front'));
+      if (front) {
+        let frontPx = 0, both = 0;
+        for (let i = 0; i < d.r.width * d.r.height; i++) {
+          if (!opaque(front.r, i)) continue;
+          frontPx++;
+          if (opaque(d.r, i)) both++;
+        }
+        const share = frontPx ? both / frontPx : 0;
+        if (share > 0.5) note('error', d.a, `Contains the front hair as well (${Math.round(share * 100)}% of hair_front is painted here too). Keep only the hair behind the head.`);
+        else if (share > 0.15) note('warn', d.a, `${Math.round(share * 100)}% of hair_front is also painted in hair_back; keep the overlap to a thin blend edge.`);
+      }
+    }
+    // 3. The head must be skin only: no dark eye or mouth line art in the feature zones.
+    if (d.a.rig!.slot === 'head') {
+      for (const zoneId of ['eyes', 'mouth']) {
+        const zone = rig.slots.find((s) => s.id === zoneId);
+        if (!zone) continue;
+        const b = shapeBounds(zone.shape);
+        let dark = 0, area = 0;
+        for (let y = Math.round(b.y); y < b.y + b.h; y++) {
+          for (let x = Math.round(b.x); x < b.x + b.w; x++) {
+            const i = y * d.r.width + x;
+            area++;
+            const R = d.r.data[i * 4], G = d.r.data[i * 4 + 1], B = d.r.data[i * 4 + 2];
+            if (opaque(d.r, i) && 0.299 * R + 0.587 * G + 0.114 * B < 80) dark++;
+          }
+        }
+        if (dark / area > 0.04) note('error', d.a, `Looks like it still contains the ${zoneId} (${Math.round((dark / area) * 100)}% dark line art in the ${zoneId} zone). The head must be skin only.`);
+      }
     }
   }
 }
@@ -146,6 +227,8 @@ async function main(): Promise<void> {
 
   const runtime: RuntimeManifest = { version: 1, generatedAt: new Date().toISOString(), assets: {}, summary: { total: 0, real: 0, placeholders: 0, warnings: 0, errors: 0 } };
   const fullCanvas = new Map<string, Raster>(); // untrimmed rasters, for the rig composite report
+  await crossCheckRigParts(assets);
+  const hasError = (key: string): boolean => issues.some((i) => i.key === key && i.level === 'error');
 
   for (const a of assets) {
     const srcPath = join(SRC, a.file);
@@ -153,7 +236,6 @@ async function main(): Promise<void> {
     let isPlaceholder = true;
 
     if (existsSync(srcPath)) {
-      const before = issues.filter((i) => i.level === 'error').length;
       const { raster: r, format, hadAlpha } = await rasterFromFile(srcPath);
       if (format !== 'png') note('error', a, `Must be PNG, got ${format}.`);
       const sizeOk = r.width === a.size[0] && r.height === a.size[1];
@@ -163,7 +245,7 @@ async function main(): Promise<void> {
       }
       // Position-based checks are meaningless on the wrong canvas size.
       if (sizeOk) validatePixels(a, r);
-      if (issues.filter((i) => i.level === 'error').length === before) {
+      if (!hasError(a.key)) {
         raster = r;
         isPlaceholder = false;
       } else {
@@ -231,6 +313,13 @@ async function main(): Promise<void> {
       mkdirSync(join(OUT, '_dev'), { recursive: true });
       writeFileSync(join(OUT, '_dev', 'rig_template_guide.png'), readFileSync(guide));
       runtime.assets['dev.rig_template'] = { key: 'dev.rig_template', type: 'image', url: 'assets/_dev/rig_template_guide.png', placeholder: false, width: 1024, height: 1536, source: { width: 1024, height: 1536 } };
+    }
+    // The approved design reference, for comparing the rig against the intended look.
+    const design = join(ROOT, 'docs', 'rig-template', 'design_reference.png');
+    if (existsSync(design)) {
+      mkdirSync(join(OUT, '_dev'), { recursive: true });
+      writeFileSync(join(OUT, '_dev', 'design_reference.png'), readFileSync(design));
+      runtime.assets['dev.design_ref'] = { key: 'dev.design_ref', type: 'image', url: 'assets/_dev/design_reference.png', placeholder: false, width: 1024, height: 1536, source: { width: 1024, height: 1536 } };
     }
   }
 

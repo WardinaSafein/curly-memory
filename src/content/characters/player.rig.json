@@ -1,84 +1,445 @@
 {
-  "$comment": "Player cutout rig v1. All coordinates are pixels on the shared 1024x1536 part canvas, rest pose, 3/4 view facing screen-right. The rig template PNGs, the placeholder parts and the runtime skeleton are all generated from this file. Change it here only, then run `npm run rig:template`.",
+  "$comment": "Player cutout rig v1.1, fitted to the approved CyberWR character design (docs/rig-template/design_reference.png). Coordinates are pixels on the shared 1024x1536 part canvas, in the pose the design is drawn in (arms ~25 deg from the body; `restPose` relaxes them in code). The rig template PNGs, placeholders, validator probes and the runtime skeleton are all generated from this file: change it here, then run `npm run rig:template`.",
   "id": "player",
-  "version": 1,
-  "canvas": { "width": 1024, "height": 1536 },
+  "version": "1.1",
+  "canvas": {
+    "width": 1024,
+    "height": 1536
+  },
   "baselineY": 1440,
   "centerX": 512,
-  "skullTopY": 190,
+  "skullTopY": 228,
   "padding": 16,
   "jointOverlap": 30,
-  "walkSpeed": 650,
+  "overlapProbe": 20,
+  "walkSpeed": 780,
+  "restPose": {
+    "upperarm_front": {
+      "rot": -8
+    },
+    "forearm_front": {
+      "rot": -3
+    },
+    "upperarm_back": {
+      "rot": 8
+    },
+    "forearm_back": {
+      "rot": 3
+    }
+  },
+  "contacts": {
+    "foot_front": {
+      "points": [[350, 1438], [510, 1438]],
+      "groundY": 1440
+    },
+    "foot_back": {
+      "points": [[542, 1429], [704, 1429]],
+      "groundY": 1431
+    }
+  },
   "bones": [
-    { "id": "root", "parent": null, "pivot": [509, 1440], "label": "ROOT (ground)" },
-    { "id": "pelvis", "parent": "root", "pivot": [510, 835], "label": "PELVIS" },
-    { "id": "torso", "parent": "pelvis", "pivot": [510, 795], "label": "WAIST" },
-    { "id": "neck", "parent": "torso", "pivot": [515, 468], "label": "NECK BASE" },
-    { "id": "head", "parent": "neck", "pivot": [521, 402], "label": "HEAD PIVOT" },
-    { "id": "upperarm_front", "parent": "torso", "pivot": [448, 495], "label": "SHOULDER F" },
-    { "id": "forearm_front", "parent": "upperarm_front", "pivot": [400, 680], "label": "ELBOW F" },
-    { "id": "hand_front", "parent": "forearm_front", "pivot": [372, 850], "label": "WRIST F" },
-    { "id": "upperarm_back", "parent": "torso", "pivot": [582, 490], "label": "SHOULDER B" },
-    { "id": "forearm_back", "parent": "upperarm_back", "pivot": [626, 672], "label": "ELBOW B" },
-    { "id": "hand_back", "parent": "forearm_back", "pivot": [650, 838], "label": "WRIST B" },
-    { "id": "thigh_front", "parent": "pelvis", "pivot": [470, 870], "label": "HIP F" },
-    { "id": "shin_front", "parent": "thigh_front", "pivot": [462, 1140], "label": "KNEE F" },
-    { "id": "foot_front", "parent": "shin_front", "pivot": [458, 1392], "label": "ANKLE F" },
-    { "id": "thigh_back", "parent": "pelvis", "pivot": [550, 862], "label": "HIP B" },
-    { "id": "shin_back", "parent": "thigh_back", "pivot": [556, 1132], "label": "KNEE B" },
-    { "id": "foot_back", "parent": "shin_back", "pivot": [560, 1384], "label": "ANKLE B" }
+    {
+      "id": "root",
+      "parent": null,
+      "pivot": [500, 1440],
+      "label": "ROOT (ground)"
+    },
+    {
+      "id": "pelvis",
+      "parent": "root",
+      "pivot": [535, 765],
+      "label": "PELVIS"
+    },
+    {
+      "id": "torso",
+      "parent": "pelvis",
+      "pivot": [530, 735],
+      "label": "WAIST"
+    },
+    {
+      "id": "neck",
+      "parent": "torso",
+      "pivot": [525, 440],
+      "label": "NECK BASE"
+    },
+    {
+      "id": "head",
+      "parent": "neck",
+      "pivot": [520, 400],
+      "label": "HEAD PIVOT"
+    },
+    {
+      "id": "upperarm_front",
+      "parent": "torso",
+      "pivot": [420, 515],
+      "label": "SHOULDER F"
+    },
+    {
+      "id": "forearm_front",
+      "parent": "upperarm_front",
+      "pivot": [350, 665],
+      "label": "ELBOW F"
+    },
+    {
+      "id": "hand_front",
+      "parent": "forearm_front",
+      "pivot": [297, 782],
+      "label": "WRIST F"
+    },
+    {
+      "id": "upperarm_back",
+      "parent": "torso",
+      "pivot": [625, 518],
+      "label": "SHOULDER B"
+    },
+    {
+      "id": "forearm_back",
+      "parent": "upperarm_back",
+      "pivot": [662, 665],
+      "label": "ELBOW B"
+    },
+    {
+      "id": "hand_back",
+      "parent": "forearm_back",
+      "pivot": [707, 790],
+      "label": "WRIST B"
+    },
+    {
+      "id": "thigh_front",
+      "parent": "pelvis",
+      "pivot": [478, 790],
+      "label": "HIP F"
+    },
+    {
+      "id": "shin_front",
+      "parent": "thigh_front",
+      "pivot": [408, 1095],
+      "label": "KNEE F"
+    },
+    {
+      "id": "foot_front",
+      "parent": "shin_front",
+      "pivot": [396, 1372],
+      "label": "ANKLE F"
+    },
+    {
+      "id": "thigh_back",
+      "parent": "pelvis",
+      "pivot": [592, 790],
+      "label": "HIP B"
+    },
+    {
+      "id": "shin_back",
+      "parent": "thigh_back",
+      "pivot": [580, 1090],
+      "label": "KNEE B"
+    },
+    {
+      "id": "foot_back",
+      "parent": "shin_back",
+      "pivot": [592, 1362],
+      "label": "ANKLE B"
+    }
   ],
   "slots": [
-    { "id": "hair_back", "bone": "head", "family": "hair", "key": "player.hair.{hair}.back", "file": "player_hair_{hair}_back.png", "color": "#8e5b3a",
-      "shape": { "type": "poly", "points": [[420, 230], [470, 170], [560, 160], [628, 205], [640, 300], [610, 420], [560, 470], [470, 470], [425, 400], [410, 310]] } },
-
-    { "id": "hand_back", "bone": "hand_back", "family": "skin", "key": "player.skin.{skin}.hand_back", "file": "player_skin_{skin}_hand_back.png", "color": "#e0a37f",
-      "shape": { "type": "ellipse", "c": [654, 884], "rx": 29, "ry": 48 } },
-    { "id": "forearm_back", "bone": "forearm_back", "family": "outfit", "key": "player.outfit.{outfit}.forearm_back", "file": "player_outfit_{outfit}_forearm_back.png", "color": "#4e7c74",
-      "shape": { "type": "capsule", "a": [626, 672], "b": [650, 838], "r1": 28, "r2": 24 } },
-    { "id": "upperarm_back", "bone": "upperarm_back", "family": "outfit", "key": "player.outfit.{outfit}.upperarm_back", "file": "player_outfit_{outfit}_upperarm_back.png", "color": "#5a8a80",
-      "shape": { "type": "capsule", "a": [582, 490], "b": [626, 672], "r1": 34, "r2": 29 } },
-
-    { "id": "foot_back", "bone": "foot_back", "family": "outfit", "key": "player.outfit.{outfit}.foot_back", "file": "player_outfit_{outfit}_foot_back.png", "color": "#5b4636",
-      "shape": { "type": "ellipse", "c": [592, 1410], "rx": 58, "ry": 24 } },
-    { "id": "shin_back", "bone": "shin_back", "family": "outfit", "key": "player.outfit.{outfit}.shin_back", "file": "player_outfit_{outfit}_shin_back.png", "color": "#3f4e6b",
-      "shape": { "type": "capsule", "a": [556, 1132], "b": [560, 1384], "r1": 36, "r2": 28 } },
-    { "id": "thigh_back", "bone": "thigh_back", "family": "outfit", "key": "player.outfit.{outfit}.thigh_back", "file": "player_outfit_{outfit}_thigh_back.png", "color": "#46577a",
-      "shape": { "type": "capsule", "a": [550, 862], "b": [556, 1132], "r1": 48, "r2": 37 } },
-
-    { "id": "foot_front", "bone": "foot_front", "family": "outfit", "key": "player.outfit.{outfit}.foot_front", "file": "player_outfit_{outfit}_foot_front.png", "color": "#6b5340",
-      "shape": { "type": "ellipse", "c": [490, 1418], "rx": 62, "ry": 26 } },
-    { "id": "shin_front", "bone": "shin_front", "family": "outfit", "key": "player.outfit.{outfit}.shin_front", "file": "player_outfit_{outfit}_shin_front.png", "color": "#4a5b7d",
-      "shape": { "type": "capsule", "a": [462, 1140], "b": [458, 1392], "r1": 39, "r2": 30 } },
-    { "id": "thigh_front", "bone": "thigh_front", "family": "outfit", "key": "player.outfit.{outfit}.thigh_front", "file": "player_outfit_{outfit}_thigh_front.png", "color": "#53668c",
-      "shape": { "type": "capsule", "a": [470, 870], "b": [462, 1140], "r1": 52, "r2": 40 } },
-
-    { "id": "neck", "bone": "neck", "family": "skin", "key": "player.skin.{skin}.neck", "file": "player_skin_{skin}_neck.png", "color": "#d89a76",
-      "shape": { "type": "capsule", "a": [521, 395], "b": [515, 478], "r1": 34, "r2": 38 } },
-    { "id": "pelvis", "bone": "pelvis", "family": "outfit", "key": "player.outfit.{outfit}.pelvis", "file": "player_outfit_{outfit}_pelvis.png", "color": "#3d4a66",
-      "shape": { "type": "poly", "points": [[432, 790], [596, 785], [606, 860], [585, 905], [440, 910], [420, 862]] } },
-    { "id": "torso", "bone": "torso", "family": "outfit", "key": "player.outfit.{outfit}.torso", "file": "player_outfit_{outfit}_torso.png", "color": "#6b9e92",
-      "shape": { "type": "poly", "points": [[452, 462], [580, 458], [618, 500], [612, 600], [598, 720], [600, 820], [428, 826], [430, 720], [415, 600], [412, 505]] } },
-
-    { "id": "head", "bone": "head", "family": "skin", "key": "player.skin.{skin}.head", "file": "player_skin_{skin}_head.png", "color": "#eab08a",
-      "shape": { "type": "poly", "points": [[528, 190], [590, 205], [628, 250], [640, 305], [634, 330], [628, 365], [600, 398], [560, 412], [520, 405], [478, 372], [452, 330], [430, 318], [432, 290], [455, 288], [452, 240], [480, 205]] } },
-    { "id": "eyes", "bone": "head", "family": "eyes", "key": "player.eyes.{eyes}.{state}", "file": "player_eyes_{eyes}_{state}.png", "color": "#2d2a32",
-      "states": ["open", "half", "closed", "wide"], "default": "open",
-      "shape": { "type": "rect", "x": 535, "y": 278, "w": 98, "h": 48 } },
-    { "id": "brows", "bone": "head", "family": "brows", "key": "player.brows.{brows}.{state}", "file": "player_brows_{brows}_{state}.png", "color": "#5a3b28",
-      "states": ["neutral", "raised"], "default": "neutral",
-      "shape": { "type": "rect", "x": 532, "y": 244, "w": 104, "h": 30 } },
-    { "id": "mouth", "bone": "head", "family": "mouth", "key": "player.mouth.{mouth}.{state}", "file": "player_mouth_{mouth}_{state}.png", "color": "#9c4a4a",
-      "states": ["neutral", "smile", "surprised"], "default": "neutral",
-      "shape": { "type": "rect", "x": 560, "y": 348, "w": 66, "h": 40 } },
-    { "id": "hair_front", "bone": "head", "family": "hair", "key": "player.hair.{hair}.front", "file": "player_hair_{hair}_front.png", "color": "#a06a44",
-      "shape": { "type": "poly", "points": [[440, 250], [470, 182], [540, 158], [612, 180], [646, 240], [640, 268], [600, 250], [560, 262], [520, 250], [490, 280], [470, 320], [446, 316]] } },
-
-    { "id": "hand_front", "bone": "hand_front", "family": "skin", "key": "player.skin.{skin}.hand_front", "file": "player_skin_{skin}_hand_front.png", "color": "#eab08a",
-      "shape": { "type": "ellipse", "c": [366, 900], "rx": 33, "ry": 52 } },
-    { "id": "forearm_front", "bone": "forearm_front", "family": "outfit", "key": "player.outfit.{outfit}.forearm_front", "file": "player_outfit_{outfit}_forearm_front.png", "color": "#6fa497",
-      "shape": { "type": "capsule", "a": [400, 680], "b": [372, 850], "r1": 31, "r2": 26 } },
-    { "id": "upperarm_front", "bone": "upperarm_front", "family": "outfit", "key": "player.outfit.{outfit}.upperarm_front", "file": "player_outfit_{outfit}_upperarm_front.png", "color": "#7ab0a2",
-      "shape": { "type": "capsule", "a": [448, 495], "b": [400, 680], "r1": 38, "r2": 32 } }
+    {
+      "id": "hair_back",
+      "bone": "head",
+      "family": "hair",
+      "key": "player.hair.{hair}.back",
+      "file": "player_hair_{hair}_back.png",
+      "color": "#6b4a32",
+      "shape": {
+        "type": "poly",
+        "points": [[385, 300], [400, 240], [440, 205], [505, 188], [575, 192], [615, 225], [630, 280], [622, 330], [600, 290], [565, 272], [520, 275], [495, 300], [480, 345], [470, 400], [445, 420], [410, 395], [388, 350]]
+      }
+    },
+    {
+      "id": "hand_back",
+      "bone": "hand_back",
+      "family": "skin",
+      "key": "player.skin.{skin}.hand_back",
+      "file": "player_skin_{skin}_hand_back.png",
+      "color": "#e8a477",
+      "shape": {"type": "poly", "points": [[688, 758], [716, 754], [744, 796], [768, 856], [768, 914], [742, 924], [712, 892], [698, 842], [686, 800]]},
+      "mustCover": [[700, 771]]
+    },
+    {
+      "id": "forearm_back",
+      "bone": "forearm_back",
+      "family": "outfit",
+      "key": "player.outfit.{outfit}.forearm_back",
+      "file": "player_outfit_{outfit}_forearm_back.png",
+      "color": "#7a4f35",
+      "shape": {
+        "type": "capsule",
+        "a": [662, 665],
+        "b": [707, 790],
+        "r1": 50,
+        "r2": 22
+      }
+    },
+    {
+      "id": "upperarm_back",
+      "bone": "upperarm_back",
+      "family": "outfit",
+      "key": "player.outfit.{outfit}.upperarm_back",
+      "file": "player_outfit_{outfit}_upperarm_back.png",
+      "color": "#c98a2e",
+      "shape": {
+        "type": "capsule",
+        "a": [625, 518],
+        "b": [662, 665],
+        "r1": 48,
+        "r2": 44
+      }
+    },
+    {
+      "id": "foot_back",
+      "bone": "foot_back",
+      "family": "outfit",
+      "key": "player.outfit.{outfit}.foot_back",
+      "file": "player_outfit_{outfit}_foot_back.png",
+      "color": "#5b4030",
+      "shape": {
+        "type": "poly",
+        "points": [[566, 1334], [618, 1334], [628, 1368], [678, 1384], [708, 1406], [706, 1431], [542, 1431], [536, 1400], [554, 1368]]
+      },
+      "mustCover": [[590, 1342]]
+    },
+    {
+      "id": "shin_back",
+      "bone": "shin_back",
+      "family": "outfit",
+      "key": "player.outfit.{outfit}.shin_back",
+      "file": "player_outfit_{outfit}_shin_back.png",
+      "color": "#3a2e2c",
+      "shape": {
+        "type": "capsule",
+        "a": [580, 1090],
+        "b": [592, 1362],
+        "r1": 46,
+        "r2": 50
+      }
+    },
+    {
+      "id": "thigh_back",
+      "bone": "thigh_back",
+      "family": "outfit",
+      "key": "player.outfit.{outfit}.thigh_back",
+      "file": "player_outfit_{outfit}_thigh_back.png",
+      "color": "#43352f",
+      "shape": {
+        "type": "capsule",
+        "a": [592, 790],
+        "b": [580, 1090],
+        "r1": 54,
+        "r2": 46
+      }
+    },
+    {
+      "id": "foot_front",
+      "bone": "foot_front",
+      "family": "outfit",
+      "key": "player.outfit.{outfit}.foot_front",
+      "file": "player_outfit_{outfit}_foot_front.png",
+      "color": "#664633",
+      "shape": {
+        "type": "poly",
+        "points": [[370, 1344], [422, 1344], [432, 1378], [482, 1392], [512, 1414], [510, 1439], [350, 1439], [344, 1408], [360, 1378]]
+      },
+      "mustCover": [[394, 1352]]
+    },
+    {
+      "id": "shin_front",
+      "bone": "shin_front",
+      "family": "outfit",
+      "key": "player.outfit.{outfit}.shin_front",
+      "file": "player_outfit_{outfit}_shin_front.png",
+      "color": "#42342f",
+      "shape": {
+        "type": "capsule",
+        "a": [408, 1095],
+        "b": [396, 1372],
+        "r1": 46,
+        "r2": 50
+      }
+    },
+    {
+      "id": "thigh_front",
+      "bone": "thigh_front",
+      "family": "outfit",
+      "key": "player.outfit.{outfit}.thigh_front",
+      "file": "player_outfit_{outfit}_thigh_front.png",
+      "color": "#4d3d35",
+      "shape": {
+        "type": "capsule",
+        "a": [478, 790],
+        "b": [408, 1095],
+        "r1": 64,
+        "r2": 48
+      }
+    },
+    {
+      "id": "neck",
+      "bone": "neck",
+      "family": "skin",
+      "key": "player.skin.{skin}.neck",
+      "file": "player_skin_{skin}_neck.png",
+      "color": "#d9956a",
+      "shape": {
+        "type": "capsule",
+        "a": [520, 395],
+        "b": [525, 450],
+        "r1": 30,
+        "r2": 34
+      }
+    },
+    {
+      "id": "pelvis",
+      "bone": "pelvis",
+      "family": "outfit",
+      "key": "player.outfit.{outfit}.pelvis",
+      "file": "player_outfit_{outfit}_pelvis.png",
+      "color": "#3b302d",
+      "shape": {
+        "type": "poly",
+        "points": [[430, 700], [640, 698], [650, 780], [628, 832], [540, 840], [445, 836], [420, 786]]
+      },
+      "mustCover": [[530, 712], [470, 712], [600, 712]]
+    },
+    {
+      "id": "torso",
+      "bone": "torso",
+      "family": "outfit",
+      "key": "player.outfit.{outfit}.torso",
+      "file": "player_outfit_{outfit}_torso.png",
+      "color": "#d39433",
+      "shape": {
+        "type": "poly",
+        "points": [[372, 452], [410, 418], [470, 422], [520, 440], [575, 425], [615, 430], [640, 470], [655, 540], [650, 640], [640, 700], [625, 738], [540, 745], [440, 740], [415, 700], [400, 640], [385, 560], [368, 500]]
+      },
+      "mustCover": [[420, 515], [625, 518], [530, 738]]
+    },
+    {
+      "id": "head",
+      "bone": "head",
+      "family": "skin",
+      "key": "player.skin.{skin}.head",
+      "file": "player_skin_{skin}_head.png",
+      "color": "#f0ae7c",
+      "shape": {
+        "type": "poly",
+        "points": [[505, 228], [560, 232], [592, 258], [602, 300], [598, 330], [593, 350], [592, 368], [586, 388], [574, 410], [552, 414], [530, 405], [505, 390], [482, 372], [468, 350], [458, 312], [462, 270], [478, 242]]
+      }
+    },
+    {
+      "id": "eyes",
+      "bone": "head",
+      "family": "eyes",
+      "key": "player.eyes.{eyes}.{state}",
+      "file": "player_eyes_{eyes}_{state}.png",
+      "color": "#2d2a32",
+      "states": ["open", "half", "closed", "wide"],
+      "default": "open",
+      "shape": {
+        "type": "rect",
+        "x": 520,
+        "y": 312,
+        "w": 86,
+        "h": 42
+      }
+    },
+    {
+      "id": "brows",
+      "bone": "head",
+      "family": "brows",
+      "key": "player.brows.{brows}.{state}",
+      "file": "player_brows_{brows}_{state}.png",
+      "color": "#4a3022",
+      "states": ["neutral", "raised"],
+      "default": "neutral",
+      "shape": {
+        "type": "rect",
+        "x": 538,
+        "y": 284,
+        "w": 68,
+        "h": 32
+      }
+    },
+    {
+      "id": "mouth",
+      "bone": "head",
+      "family": "mouth",
+      "key": "player.mouth.{mouth}.{state}",
+      "file": "player_mouth_{mouth}_{state}.png",
+      "color": "#9c4a4a",
+      "states": ["neutral", "smile", "surprised"],
+      "default": "neutral",
+      "shape": {
+        "type": "rect",
+        "x": 545,
+        "y": 362,
+        "w": 48,
+        "h": 34
+      }
+    },
+    {
+      "id": "hair_front",
+      "bone": "head",
+      "family": "hair",
+      "key": "player.hair.{hair}.front",
+      "file": "player_hair_{hair}_front.png",
+      "color": "#7d573b",
+      "shape": {
+        "type": "poly",
+        "points": [[445, 250], [490, 210], [560, 200], [610, 228], [630, 280], [624, 326], [605, 295], [570, 275], [535, 278], [510, 292], [492, 320], [478, 312], [460, 280]]
+      }
+    },
+    {
+      "id": "hand_front",
+      "bone": "hand_front",
+      "family": "skin",
+      "key": "player.skin.{skin}.hand_front",
+      "file": "player_skin_{skin}_hand_front.png",
+      "color": "#f0ae7c",
+      "shape": {
+        "type": "ellipse",
+        "c": [285, 840],
+        "rx": 36,
+        "ry": 82
+      },
+      "mustCover": [[304, 764]]
+    },
+    {
+      "id": "forearm_front",
+      "bone": "forearm_front",
+      "family": "outfit",
+      "key": "player.outfit.{outfit}.forearm_front",
+      "file": "player_outfit_{outfit}_forearm_front.png",
+      "color": "#8a5a3c",
+      "shape": {
+        "type": "capsule",
+        "a": [350, 665],
+        "b": [297, 782],
+        "r1": 52,
+        "r2": 22
+      }
+    },
+    {
+      "id": "upperarm_front",
+      "bone": "upperarm_front",
+      "family": "outfit",
+      "key": "player.outfit.{outfit}.upperarm_front",
+      "file": "player_outfit_{outfit}_upperarm_front.png",
+      "color": "#e0a03a",
+      "shape": {
+        "type": "capsule",
+        "a": [420, 515],
+        "b": [350, 665],
+        "r1": 50,
+        "r2": 44
+      }
+    }
   ]
 }

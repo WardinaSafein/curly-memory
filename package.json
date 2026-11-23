@@ -8,6 +8,7 @@
     "assets": "tsx tools/build-assets.ts",
     "assets:validate": "tsx tools/build-assets.ts --validate-only",
     "rig:template": "tsx tools/make-rig-template.ts",
+    "rig:fit-walk": "tsx tools/fit-walk.ts",
     "predev": "npm run assets",
     "dev": "vite",
     "prebuild": "npm run assets",

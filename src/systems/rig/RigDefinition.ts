@@ -40,11 +40,19 @@ export interface SlotDef {
   shape: GuideShape;
   /** Placeholder / template colour. */
   color?: string;
+  /**
+   * Extra canvas points that must be painted (opaque) in this part, beyond the automatic
+   * capsule-end probes. Used to enforce hidden overlap (e.g. a hand reaching up into the sleeve).
+   */
+  mustCover?: Vec2[];
 }
+
+/** A fixed pose offset applied under every animation (e.g. relax arms drawn slightly wide). */
+export type RestPose = Record<string, { rot?: number; x?: number; y?: number }>;
 
 export interface RigDef {
   id: string;
-  version: number;
+  version: string | number;
   canvas: { width: number; height: number };
   baselineY: number;
   centerX: number;
@@ -53,6 +61,12 @@ export interface RigDef {
   jointOverlap: number;
   /** Walk speed in canvas px/s at scale 1 (matches the walk clip's stride). */
   walkSpeed: number;
+  /** Distance past each capsule end that must be painted (validated with coverage probes). */
+  overlapProbe?: number;
+  /** Code-side pose correction applied under all animations. */
+  restPose?: RestPose;
+  /** Sole contact points per foot bone (canvas space) and the ground y they rest on. */
+  contacts?: Record<string, { points: Vec2[]; groundY: number }>;
   bones: BoneDef[];
   /** Draw order: first entry is drawn at the back. */
   slots: SlotDef[];
@@ -118,6 +132,24 @@ export function shapeBounds(shape: GuideShape): { x: number; y: number; w: numbe
   }
 }
 
+/**
+ * Canvas points that must be painted in a part so joints never open a gap:
+ * for capsule limbs, a point `overlapProbe` px beyond each end along the limb
+ * axis, plus any explicit `mustCover` points.
+ */
+export function coverageProbes(rig: RigDef, slot: SlotDef): Vec2[] {
+  const out: Vec2[] = [...(slot.mustCover ?? [])];
+  const d = rig.overlapProbe ?? 0;
+  if (d > 0 && slot.shape.type === 'capsule') {
+    const { a, b } = slot.shape;
+    const len = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1;
+    const ux = (b[0] - a[0]) / len;
+    const uy = (b[1] - a[1]) / len;
+    out.push([Math.round(a[0] - ux * d), Math.round(a[1] - uy * d)], [Math.round(b[0] + ux * d), Math.round(b[1] + uy * d)]);
+  }
+  return out;
+}
+
 /** Structural validation. Returns a list of human-readable problems (empty = valid). */
 export function validateRig(rig: RigDef): string[] {
   const problems: string[] = [];
@@ -132,6 +164,8 @@ export function validateRig(rig: RigDef): string[] {
     if (x < 0 || y < 0 || x > rig.canvas.width || y > rig.canvas.height) problems.push(`Bone "${bone.id}" pivot is outside the canvas`);
   }
   if (roots !== 1) problems.push(`Rig needs exactly one root bone (found ${roots})`);
+  for (const id of Object.keys(rig.restPose ?? {})) if (!boneIds.has(id)) problems.push(`restPose references unknown bone "${id}"`);
+  for (const id of Object.keys(rig.contacts ?? {})) if (!boneIds.has(id)) problems.push(`contacts reference unknown bone "${id}"`);
   const slotIds = new Set<string>();
   for (const slot of rig.slots) {
     if (slotIds.has(slot.id)) problems.push(`Duplicate slot "${slot.id}"`);

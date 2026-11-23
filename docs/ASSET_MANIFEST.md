@@ -92,8 +92,11 @@ For each expanded asset:
    | `alpha: false` but has transparent pixels | warning |
    | Visible pixels inside the padding border | warning |
    | White halo / green spill on semi-transparent edges | warning |
+   | Rig part: a ◆ must-paint point (hidden overlap past a joint) is not painted | error |
+   | Rig part: expression state identical to another state of the same feature | error |
+   | Rig part: `hair_back` also contains the front hair (> 50 % of `hair_front`) | error (warning above 15 %) |
+   | Rig part: head still contains eye / mouth line art in the feature zones | error |
    | Rig part centre far from its template position | warning |
-   | Rig part does not extend past its joint | warning |
    | File in `assets-src/` that no manifest entry expects | warning |
 
 3. **Errors → placeholder.** The file is reported and a placeholder is used until it's fixed, so

@@ -49,49 +49,64 @@ Until a file arrives, the game shows a labelled placeholder with the same name a
 
 ---
 
-## 4. Player character: rig test batch (requested now)
+## 4. Player character: rig test batch v2 (requested now)
 
-One character, **one hairstyle, one outfit, one face style**, enough to test idle, blink, walk and
-surprise in the Rig Lab.
+One character (the **approved CyberWR design**), one hairstyle, one outfit, one face style: enough to
+test idle, blink, walk and surprise in the Rig Lab. The first package (v1) failed validation and is
+kept as a **design reference only** ([review](reviews/rigtest-v1/README.md)).
 
-### 4.1 Use the rig template
+### 4.1 Use rig template v1.1
 
-Download **[`docs/rig-template/cyberwr_rig_template_v1.zip`](rig-template/cyberwr_rig_template_v1.zip)**
-and read its [README](rig-template/README.md). In short:
+Download **[`docs/rig-template/cyberwr_rig_template_v1_1.zip`](rig-template/cyberwr_rig_template_v1_1.zip)**
+and follow its [README](rig-template/README.md): it lists every part, what it contains and its
+must-paint points. Summary:
 
-- **Shared canvas: 1024×1536 px for every part.** Each part is painted **in its final position**
-  on the full canvas, everything else transparent, like one layer exported from a stacked file.
-- Pose: **3/4 view facing screen-right**, relaxed A-pose (arms ~15° from the body), legs straight.
-- **Front sole on y = 1440**, top of skull at **y = 190** (1250 px), body centred on **x = 512**.
-- **Joint overlap:** every limb part extends **~30 px past its joint** with a rounded end, including
-  areas hidden under other parts, so nothing gaps when the limb rotates.
-- "front" = limbs nearer the viewer; "back" = far-side limbs (slightly smaller and darker).
+- The rig is **fitted to the approved design** (`design_reference.png`): keep its proportions, stance
+  and arm angle exactly. The game relaxes the arms in code.
+- **Shared canvas 1024×1536 for every part**, each part in its exact design position.
+- Front sole on **y = 1440**, back sole y ≈ 1431, top of skull **y = 228**.
+- Joints: shoulder F (420, 515) / B (625, 518), elbow F (350, 665) / B (662, 665), wrist F (297, 782) /
+  B (707, 790), waist (530, 735), hip F (478, 790) / B (592, 790), knee F (408, 1095) / B (580, 1090),
+  ankle F (396, 1372) / B (592, 1362), neck base (525, 440), head pivot (520, 400).
+- **Hidden overlap is enforced:** each part has ◆ must-paint points ~20 px past its joints; an unpainted
+  point rejects the file.
+- **Both boots point screen-right.** The design's front boot faces the viewer and must be redrawn for
+  the walk.
 
 ### 4.2 Files (all in `assets-src/characters/player/`)
 
 | Group | Files | Notes |
 |---|---|---|
-| Skin (4) | `player_skin_s01_head.png`, `player_skin_s01_neck.png`, `player_skin_s01_hand_front.png`, `player_skin_s01_hand_back.png` | Head = face + ears + nose, **no** eyes, brows, mouth or hair. One medium skin tone, shading in a single hue (it will be recoloured in code later). Hands relaxed. |
-| Eyes (4) | `player_eyes_e01_open.png`, `…_half.png`, `…_closed.png`, `…_wide.png` | Both eyes in one image, identical position in all four. `wide` = surprise. |
-| Brows (2) | `player_brows_b01_neutral.png`, `player_brows_b01_raised.png` | |
-| Mouth (3) | `player_mouth_m01_neutral.png`, `…_smile.png`, `…_surprised.png` | |
-| Hair (2) | `player_hair_h01_back.png`, `player_hair_h01_front.png` | Back = everything behind the head; front = fringe/top over the face. Single mid-tone hue. |
-| Outfit (12) | `player_outfit_o01_{torso, pelvis, upperarm_front, upperarm_back, forearm_front, forearm_back, thigh_front, thigh_back, shin_front, shin_back, foot_front, foot_back}.png` | Outfit covers arms and legs fully (long sleeves, trousers, shoes). Final colours. |
-| Reference (1) | `player_ref_o01.png` | The assembled character in the same pose on the same canvas, used to check that the parts line up. |
+| Skin (4) | `player_skin_s01_{head, neck, hand_front, hand_back}.png` | Head = skin only (face, jaw, ear, nose, skull under the hair). **No eyes, brows, mouth or hair.** |
+| Eyes (4) | `player_eyes_e01_{open, half, closed, wide}.png` | Inside x 520–606, y 312–354; same position in every state. |
+| Brows (2) | `player_brows_b01_{neutral, raised}.png` | Inside x 538–606, y 284–316. |
+| Mouth (3) | `player_mouth_m01_{neutral, smile, surprised}.png` | Inside x 545–593, y 362–396. |
+| Hair (2) | `player_hair_h01_{back, front}.png` | No pixel drawn in both. |
+| Outfit (12) | `player_outfit_o01_{torso, pelvis, upperarm_front, upperarm_back, forearm_front, forearm_back, thigh_front, thigh_back, shin_front, shin_back, foot_front, foot_back}.png` | Sleeves on the upper arms (not the torso). Rolled cuffs and the watch on the forearms. Boot shafts on the shins; lower boots on the feet. Belt on the pelvis, painted up under the jacket. |
+| Reference (1) | `player_ref_o01.png` | The assembled character (approved design with the front boot pointing right). |
 
-**28 files total.** Draw order and the exact region of each part are in the template's parts map.
+**28 files** + `palette.txt`, delivered as `cyberwr_rigtest_v2.zip`.
 
-### 4.3 How the character is used in-game
+### 4.3 Acceptance gates
+
+A part is only integrated into the game after:
+
+1. it passes `npm run assets:validate` with **no errors**:
+   - size, transparency and padding;
+   - ◆ must-paint points;
+   - non-empty, distinct expression states;
+   - no double-drawn hair, no features left in the head;
+2. the rest-pose composite matches the reference;
+3. idle, blink, walk and surprise look clean in the Rig Lab: no gaps, doubled details or edge fringe.
+
+### 4.4 How the character is used in-game
 
 | Where | Display scale | Approx. on-screen height |
 |---|---|---|
-| Bedroom | 0.42 | 525 px |
-| CyberTown | 0.34 | 425 px |
+| Bedroom | 0.42 | 510 px |
+| CyberTown | 0.34 | 410 px |
 | Portal tunnel | 0.12 → 0.42 | grows |
-| Rig Lab / close-ups | 0.6 – 1.5 | up to 1875 px (face zoom) |
-
-Line weight should therefore read well when scaled down to ~0.34 (≈ 3–5 px outlines at 1× are a
-good starting point).
+| Rig Lab / close-ups | 0.6 – 1.5 | up to 1820 px (face zoom) |
 
 ---
 
