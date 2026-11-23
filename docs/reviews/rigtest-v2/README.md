@@ -81,3 +81,26 @@ Both can be polished later with a hand touch-up in a layer editor.
 **Reproduce:** put the 11 edits in a folder and run
 `python3 tools/rig_cutter/cut_parts.py --edits <folder> --out <out>`, then copy
 `<out>/characters/player/*.png` into `assets-src/characters/player/`.
+
+## Smoothness pass (after creative-director feedback: "not smooth")
+
+At 100 % zoom the character had three real problems, now fixed:
+
+| Problem | Cause | Fix |
+|---|---|---|
+| Hairline seams through the hair and around the face | Two parts' soft edges met at each cut, letting the background show through | Every part bleeds 2 px under its neighbours along internal joins |
+| Dotted, ragged outline (most visible on the redrawn boot) | Light edge pixels were deleted | Light edge pixels are recoloured to the local outline colour, keeping the soft edge |
+| Jagged edges at in-game size (0.34×) | WebGL1 can't mipmap non-power-of-two textures, so there was no smooth downscaling | Rig parts are padded to power-of-two in the asset build; mipmaps (`LINEAR_MIPMAP_LINEAR`) are now active |
+
+Also fixed:
+- **Crotch:** spikes between the legs at push-off are gone; the hips own the crotch and the thighs have rounded tops.
+- **Ghost lines:** faint pixels from ChatGPT's not-quite-black background are removed.
+- **Validator:** the head check now ignores the head's own outline, and still rejects baked-in eyes (24 % on the v1 draft).
+
+![Close-ups](10_smoothness_closeups.jpg)
+
+Motion at 30 fps: [walk](8_walk.gif) · [surprise](9_surprise.gif)
+
+**What cut-out animation can't do:** cloth doesn't fold, the torso doesn't twist, and limbs rotate as
+rigid pieces. If the motion should feel more fluid, the next step is animation polish (more keys,
+overlapping action, secondary motion of hair and jacket hem), not more art.

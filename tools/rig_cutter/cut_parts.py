@@ -60,7 +60,7 @@ def edit_to_rgba(path):
     e = np.asarray(Image.open(path).convert('RGB')).astype(np.float32) / 255.0
     rgb[: min(H, e.shape[0]), : min(W, e.shape[1])] = e[:H, :W]
     m = rgb.max(axis=2)
-    a = np.clip((m - 0.02) / 0.13, 0, 1)            # black -> transparent, outlines (~0.2) -> opaque
+    a = np.clip((m - 0.07) / 0.10, 0, 1)            # black (with noise up to ~0.15) -> transparent, outlines (~0.2) -> opaque
     col = np.where(a[..., None] > 0, rgb / np.maximum(a[..., None], 1e-3), 0)  # un-premultiply from black
     return np.dstack([np.clip(col, 0, 1), a])
 
@@ -210,9 +210,20 @@ def main():
     ring = S & ~erode(S, 3)
     sat = T[..., :3].max(2) - T[..., :3].min(2)
     fringe = ring & (lum(T) > 0.55) & (sat < 0.25)
-    T[fringe, 3] = 0
+    # Recolour fringe pixels to the nearby outline colour instead of deleting them: deleting
+    # leaves a dotted, ragged outline; recolouring keeps the soft anti-aliased edge.
+    dark = (lum(T) < 0.32) & (T[..., 3] > 0.5) & ~fringe
+    k = 9
+    cnt = box_count(dark, k).astype(np.float32)
+    outline = np.zeros((H, W, 3), np.float32)
+    for c in range(3):
+        cs = np.pad(T[..., c] * dark, k // 2 + 1).cumsum(0).cumsum(1)
+        outline[..., c] = cs[k:k + H, k:k + W] - cs[0:H, k:k + W] - cs[k:k + H, 0:W] + cs[0:H, 0:W]
+    fallback = np.array([0.22, 0.18, 0.17], np.float32)
+    col = np.where(cnt[..., None] > 0, outline / np.maximum(cnt[..., None], 1), fallback)
+    T[fringe, :3] = col[fringe]
     S = T[..., 3] > 0.03
-    notes.append(f'removed {int(fringe.sum())} light fringe pixels from the outline')
+    notes.append(f'recoloured {int(fringe.sum())} light fringe pixels on the outline')
 
     yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
     owner = np.full((H, W), '', dtype=object)
@@ -305,6 +316,10 @@ def main():
         below = (ys > ank[1] - 12) & np.isin(pick, [f'shin_{side}', foot])
         pick[below] = foot
     owner[ys, xs] = pick
+    for th in ['thigh_front', 'thigh_back']:
+        leg = shape_mask(slots[th]['shape'], 10)
+        crotch = (owner == th) & ~leg & (yy < 980)
+        owner[crotch] = 'pelvis'
 
     # ---- clean-up: arm residue and specks
     no_arm_sil = dilate(ed['no_arms'][..., 3] > 0.5, 1)
@@ -391,6 +406,24 @@ def main():
             out[grow] = acc[grow] / cnt[grow][:, None]
             out[grow, 3] = 1.0
             known |= grow; todo &= ~grow
+        if sid in ('thigh_front', 'thigh_back'):
+            out[~shape_mask(slot['shape'], 14), 3] = 0
+        # round off hidden fills: thin slivers and spikes (which show when a joint opens) are removed
+        solid_all = out[..., 3] > 0.05
+        filled_extra = solid_all & ~own
+        rounded = open_mask(solid_all, 4) | own
+        out[filled_extra & ~rounded, 3] = 0
+        # 2 px bleed along every internal join: neighbouring parts overlap slightly so the soft
+        # edges of two parts never let the background show through as a hairline seam
+        solid0 = out[..., 3] > 0.05
+        bleed = dilate(solid0, 2) & S & ~solid0
+        bsrc = base
+        if sid == 'head':
+            bleed &= ~face_zone          # the head stays skin-only in the feature zones
+        if sid == 'hair_front':
+            bsrc = ed['blank']           # hair overlaps the face with blank skin, never the design's eyes
+        out[bleed] = bsrc[bleed]
+        out[bleed, 3] = np.maximum(bsrc[bleed, 3], T[bleed, 3])
         # drop detached fragments: keep what is connected to the part's guide region
         solid = out[..., 3] > 0.05
         seed = solid & shape_mask(slot['shape'], 0)
@@ -401,6 +434,21 @@ def main():
                     break
                 seed = grown
             out[solid & ~seed, 3] = 0
+        # recolour light specks on this part's own edge (re-render halos from the edits)
+        solid = out[..., 3] > 0.5
+        ring_p = solid & ~erode(solid, 2)
+        sat_p = out[..., :3].max(2) - out[..., :3].min(2)
+        specks = ring_p & (lum(out) > 0.6) & (sat_p < 0.22)
+        if specks.any():
+            dk = solid & (lum(out) < 0.32)
+            kk = 9
+            cnt_p = box_count(dk, kk).astype(np.float32)
+            col_p = np.zeros((H, W, 3), np.float32)
+            for c in range(3):
+                cs = np.pad(out[..., c] * dk, kk // 2 + 1).cumsum(0).cumsum(1)
+                col_p[..., c] = cs[kk:kk + H, kk:kk + W] - cs[0:H, kk:kk + W] - cs[kk:kk + H, 0:W] + cs[0:H, 0:W]
+            col_p = np.where(cnt_p[..., None] > 0, col_p / np.maximum(cnt_p[..., None], 1), np.array([0.22, 0.18, 0.17], np.float32))
+            out[specks, :3] = col_p[specks]
         missing = [p for p in probes(rig, slot) if out[p[1], p[0], 3] <= 0.5]
         if missing:
             prob_fail[sid] = missing
@@ -446,6 +494,7 @@ def main():
 
     def save(arr, path):
         a = (np.clip(arr, 0, 1) * 255).round().astype(np.uint8)
+        a[a[..., 3] < 24, 3] = 0                        # near-invisible noise (from the edits' "black")
         a[a[..., 3] == 0, :3] = 0
         Image.fromarray(a, 'RGBA').save(path, optimize=True)
 

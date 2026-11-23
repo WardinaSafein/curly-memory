@@ -141,6 +141,18 @@ function covered(r: Raster, x: number, y: number, radius = 4): boolean {
   return false;
 }
 
+/** True if every pixel within `r` px of (x, y) is opaque (i.e. not on the part's edge). */
+function interior(r: Raster, x: number, y: number, rad: number): boolean {
+  for (let dy = -rad; dy <= rad; dy++) {
+    for (let dx = -rad; dx <= rad; dx++) {
+      const px = x + dx, py = y + dy;
+      if (px < 0 || py < 0 || px >= r.width || py >= r.height) return false;
+      if (r.data[(py * r.width + px) * 4 + 3] <= 128) return false;
+    }
+  }
+  return true;
+}
+
 /**
  * Checks that need several rig parts at once (run before the main loop so
  * failures fall back to placeholders): duplicated expression states, hair drawn
@@ -210,7 +222,9 @@ async function crossCheckRigParts(assets: DeclaredAsset[]): Promise<void> {
             const i = y * d.r.width + x;
             area++;
             const R = d.r.data[i * 4], G = d.r.data[i * 4 + 1], B = d.r.data[i * 4 + 2];
-            if (opaque(d.r, i) && 0.299 * R + 0.587 * G + 0.114 * B < 80) dark++;
+            // only interior pixels count: the head's own outline (and hair edges) are allowed,
+            // real eyes and mouths sit inside the face
+            if (opaque(d.r, i) && 0.299 * R + 0.587 * G + 0.114 * B < 80 && interior(d.r, x, y, 4)) dark++;
           }
         }
         if (dark / area > 0.04) note('error', d.a, `Looks like it still contains the ${zoneId} (${Math.round((dark / area) * 100)}% dark line art in the ${zoneId} zone). The head must be skin only.`);
@@ -277,6 +291,18 @@ async function main(): Promise<void> {
         height = Math.min(raster.height, b.y + b.h + m) - y;
         out = out.extract({ left: x, top: y, width, height });
         trim = { x, y };
+      }
+    }
+    // Rig parts are drawn heavily downscaled (~0.34x in scenes). WebGL1 can only build mipmaps
+    // (smooth downscaling) for power-of-two textures, so pad parts with transparency to POT.
+    if (a.type === 'rigPart') {
+      const pot = (n: number): number => 2 ** Math.ceil(Math.log2(Math.max(1, n)));
+      const pw = pot(width), ph = pot(height);
+      if (pw !== width || ph !== height) {
+        const buf = await out.png().toBuffer();
+        out = sharp(buf).extend({ right: pw - width, bottom: ph - height, background: { r: 0, g: 0, b: 0, alpha: 0 } });
+        width = pw;
+        height = ph;
       }
     }
 

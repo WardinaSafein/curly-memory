@@ -26,7 +26,8 @@ const game = new Phaser.Game({
   backgroundColor: '#1b1424',
   scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
   input: { activePointers: 2 },
-  render: { maxTextures },
+  // Mipmaps give smooth downscaling (characters are drawn at ~0.34x in scenes).
+  render: { maxTextures, mipmapFilter: 'LINEAR_MIPMAP_LINEAR' },
   scene: [BootScene, PreloadScene, TitleScene, ExploreScene, CinematicScene, RigLabScene],
 });
 
