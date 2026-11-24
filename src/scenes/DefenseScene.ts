@@ -55,8 +55,10 @@ export class DefenseScene extends Phaser.Scene {
     this.add.image(0, 0, map.background).setOrigin(0).setDepth(0);
     this.path = new Phaser.Curves.Spline(map.path.map(([x, y]) => new Phaser.Math.Vector2(x, y)));
     this.gate = map.gate;
-    this.add.image(map.gate.x, map.gate.y, map.gateImage).setOrigin(0.5, 1).setScale(map.gateScale).setDepth(DEPTH.world);
+    if (map.gateImage) this.add.image(map.gate.x, map.gate.y, map.gateImage).setOrigin(0.5, 1).setScale(map.gateScale ?? 1).setDepth(DEPTH.world);
 
+    // Soft backing card so the HUD stays readable over painted maps.
+    this.add.graphics().setDepth(DEPTH.hud - 1).fillStyle(0x2b2130, 0.55).fillRoundedRect(20, 18, 500, 168, 18);
     this.hearts = this.add.graphics().setDepth(DEPTH.hud);
     this.hud = this.add.text(40, 30, '', { fontFamily: FontFamily, fontSize: '26px', color: '#fff8ec', stroke: '#2b2130', strokeThickness: 6, lineSpacing: 8 }).setDepth(DEPTH.hud);
     new Button(this, GAME_WIDTH - 110, 60, 'Menu', () => this.scene.start(SceneKeys.Title), { width: 160, height: 60, fontSize: 24 }).setDepth(DEPTH.hud);

@@ -5,6 +5,7 @@
 
 --anchor-y: 0 = keep the top, 1 = keep the bottom, 0.5 = crop evenly (default).
 """
+import os
 import argparse
 from PIL import Image
 
@@ -18,5 +19,6 @@ im = im.convert(mode)
 s = max(a.w / im.width, a.h / im.height)
 im = im.resize((round(im.width * s), round(im.height * s)), Image.LANCZOS)
 x = round((im.width - a.w) * a.anchor_x); y = round((im.height - a.h) * a.anchor_y)
+os.makedirs(os.path.dirname(os.path.abspath(a.dst)), exist_ok=True)
 im.crop((x, y, x + a.w, y + a.h)).save(a.dst, optimize=True)
 print(f'{a.dst}: {a.w}x{a.h} (scale {s:.3f}, crop x={x} y={y})')

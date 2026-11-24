@@ -462,25 +462,6 @@
       }
     },
     {
-      "key": "defense.post_office",
-      "file": "scenes/defense/post_office_gate.png",
-      "size": [
-        600,
-        600
-      ],
-      "alpha": true,
-      "trim": true,
-      "placeholder": {
-        "motif": "object",
-        "label": "Post Office (the town gate)",
-        "palette": [
-          "#b5603f",
-          "#e8c39e",
-          "#f6bd60"
-        ]
-      }
-    },
-    {
       "key": "defense.creature.{k}",
       "file": "characters/creatures/creature_{k}.png",
       "size": [
