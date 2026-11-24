@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { FontFamily, Palette, SceneKeys } from '../config/game';
 import { services } from '../core/Services';
-import { createPlayer, playerRig } from '../content/characters/player';
+import { createPlayerRig, playerRig } from '../content/characters/player';
 import type { CutoutRig } from '../systems/rig/CutoutRig';
 import { rigPartsFor } from '../systems/rig/RigDefinition';
 import { Button } from '../ui/Button';
@@ -49,9 +49,9 @@ export class RigLabScene extends Phaser.Scene {
       this.reference = this.add.image(0, 0, refKey).setOrigin(0).setAlpha(0.5).setVisible(false).setDepth(5);
     }
 
-    this.big = createPlayer(this, this.view.x, this.view.y, this.view.scale);
+    this.big = createPlayerRig(this, this.view.x, this.view.y, this.view.scale);
     this.big.setDepth(2);
-    this.small = createPlayer(this, 1000, this.view.y, 0.34);
+    this.small = createPlayerRig(this, 1000, this.view.y, 0.34);
     this.add.text(1000, this.view.y + 18, 'in-game size', { fontFamily: FontFamily, fontSize: '18px', color: '#5a4f45' }).setOrigin(0.5, 0);
 
     this.buildPanel();

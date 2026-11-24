@@ -79,7 +79,8 @@ export interface SceneDef {
   layers: LayerDef[];
   /** Click-to-walk line. Omit for scenes where the player doesn't move. */
   walk?: { y: number; minX: number; maxX: number };
-  player?: { scale: number; tint?: number; depth?: number };
+  /** `outfit`: which player picture set to use (default 'boots'; 'socks' at home). */
+  player?: { scale: number; tint?: number; depth?: number; outfit?: string };
   hotspots: HotspotDef[];
   entries: Record<string, EntryDef>;
 }

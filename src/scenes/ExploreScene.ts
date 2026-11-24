@@ -7,7 +7,7 @@ import { SCENES } from '../content/scenes';
 import { createStoryRunner } from '../content/story';
 import { DialogueBox } from '../systems/dialogue/DialogueBox';
 import type { DialogueRunner } from '../systems/dialogue/DialogueRunner';
-import type { CutoutRig } from '../systems/rig/CutoutRig';
+import type { StillCharacter } from '../systems/character/StillCharacter';
 import { areaBounds, guardPasses, type Action, type HotspotDef, type SceneDef } from '../systems/scene/SceneDefinition';
 import { Button } from '../ui/Button';
 import { anchor } from '../ui/layout';
@@ -21,7 +21,7 @@ import { gotoTitle, runTransition } from './router';
 export class ExploreScene extends Phaser.Scene {
   private def!: SceneDef;
   private entry = 'default';
-  private player: CutoutRig | null = null;
+  private player: StillCharacter | null = null;
   private busy = false;
   private dialogue!: DialogueBox;
   private runner!: DialogueRunner;
@@ -104,7 +104,7 @@ export class ExploreScene extends Phaser.Scene {
     const { walk, player: cfg } = this.def;
     if (!walk || !cfg) return;
     const entry = this.def.entries[this.entry] ?? this.def.entries.default;
-    this.player = createPlayer(this, entry.x, walk.y, cfg.scale, entry.facing);
+    this.player = createPlayer(this, entry.x, walk.y, cfg.scale, entry.facing, cfg.outfit);
     this.player.setDepth(cfg.depth ?? 50);
     if (cfg.tint !== undefined) this.player.setRigTint(cfg.tint);
     if (this.def.world.width > this.scale.gameSize.width) {

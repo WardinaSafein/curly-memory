@@ -306,7 +306,7 @@ async function main(): Promise<void> {
       if (b) {
         // rig parts are mipmapped: keep a wider transparent margin so smoothed (smaller) mip levels
         // never sample across the texture edge (that shows as faint straight lines)
-        const m = a.type === 'rigPart' ? 8 : 2;
+        const m = a.type === 'rigPart' || a.pot ? 8 : 2;
         const x = Math.max(0, b.x - m), y = Math.max(0, b.y - m);
         width = Math.min(raster.width, b.x + b.w + m) - x;
         height = Math.min(raster.height, b.y + b.h + m) - y;
@@ -314,9 +314,9 @@ async function main(): Promise<void> {
         trim = { x, y };
       }
     }
-    // Rig parts are drawn heavily downscaled (~0.34x in scenes). WebGL1 can only build mipmaps
-    // (smooth downscaling) for power-of-two textures, so pad parts with transparency to POT.
-    if (a.type === 'rigPart') {
+    // Rig parts and characters are drawn heavily downscaled. WebGL1 can only build mipmaps
+    // (smooth downscaling) for power-of-two textures, so pad them with transparency to POT.
+    if (a.type === 'rigPart' || a.pot) {
       const pot = (n: number): number => 2 ** Math.ceil(Math.log2(Math.max(1, n)));
       const pw = pot(width), ph = pot(height);
       if (pw !== width || ph !== height) {

@@ -41,7 +41,11 @@ export class CinematicScene extends Phaser.Scene {
     this.cameras.main.ignore([dialogue, skip]);
 
     EventBus.emitEvent('cinematic:start', def.id);
-    void director.run(def).then(() => {
+    // Dev helper: ?beat=<id> starts the cinematic at that beat.
+    const from = services.params.get('beat');
+    const start = from ? def.beats.findIndex((b) => b.id === from) : -1;
+    const run = start > 0 ? { ...def, beats: def.beats.slice(start) } : def;
+    void director.run(run).then(() => {
       skip.destroy();
       EventBus.emitEvent('cinematic:end', def.id);
       runTransition(this, def.then);

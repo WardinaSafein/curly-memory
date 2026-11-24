@@ -49,6 +49,8 @@ export interface DeclaredAsset {
   tile?: 'x' | 'y' | 'xy';
   /** Trim transparent borders on build and record offsets (default true for rigPart). */
   trim?: boolean;
+  /** Pad to power-of-two so WebGL1 can mipmap it (for art drawn heavily downscaled, like characters). */
+  pot?: boolean;
   /** Missing file is an error instead of a placeholder. */
   required?: boolean;
   /** Expansion variables: every combination produces one asset. */

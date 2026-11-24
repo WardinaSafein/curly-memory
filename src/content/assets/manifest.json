@@ -505,6 +505,38 @@
           "#3b2a26"
         ]
       }
+    },
+    {
+      "key": "player.still.boots",
+      "file": "characters/player_still/player_idle.png",
+      "size": [
+        1024,
+        1536
+      ],
+      "alpha": true,
+      "trim": true,
+      "pot": true,
+      "placeholder": {
+        "motif": "figure",
+        "label": "player (boots)"
+      },
+      "notes": "Whole-body player, three-quarter view facing right. Outdoors outfit: boots and backpack."
+    },
+    {
+      "key": "player.still.socks",
+      "file": "characters/player_still/player_idle_socks.png",
+      "size": [
+        1024,
+        1535
+      ],
+      "alpha": true,
+      "trim": true,
+      "pot": true,
+      "placeholder": {
+        "motif": "figure",
+        "label": "player (socks)"
+      },
+      "notes": "Same picture as player_idle, at home: socks, no backpack."
     }
   ],
   "rigs": [
