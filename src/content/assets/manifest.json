@@ -537,6 +537,38 @@
         "label": "player (socks)"
       },
       "notes": "Same picture as player_idle, at home: socks, no backpack."
+    },
+    {
+      "key": "player.step.boots",
+      "file": "characters/player_still/player_step.png",
+      "size": [
+        1025,
+        1534
+      ],
+      "alpha": true,
+      "trim": true,
+      "pot": true,
+      "placeholder": {
+        "motif": "figure",
+        "label": "player step (boots)"
+      },
+      "notes": "Mid-step version of player_idle: right heel forward, left foot on its toes."
+    },
+    {
+      "key": "player.step.socks",
+      "file": "characters/player_still/player_step_socks.png",
+      "size": [
+        1024,
+        1536
+      ],
+      "alpha": true,
+      "trim": true,
+      "pot": true,
+      "placeholder": {
+        "motif": "figure",
+        "label": "player step (socks)"
+      },
+      "notes": "Mid-step version of player_idle_socks."
     }
   ],
   "rigs": [

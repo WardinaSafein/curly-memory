@@ -17,8 +17,8 @@ export const playerClips: ClipLibrary = Object.fromEntries(Object.entries(anims)
  */
 export const playerStill: StillCharacterDef = {
   outfits: {
-    boots: { key: 'player.still.boots', anchor: [512, 1512] },
-    socks: { key: 'player.still.socks', anchor: [512, 1495] },
+    boots: { key: 'player.still.boots', anchor: [512, 1512], stepKey: 'player.step.boots', stepAnchor: [515, 1471] },
+    socks: { key: 'player.still.socks', anchor: [512, 1495], stepKey: 'player.step.socks', stepAnchor: [514, 1477] },
   },
   // At scale 1 the old rig stood ~1250 px (hair to sole); the picture is ~1492 px. Keeps every scene's scale valid.
   pictureScale: 1250 / 1492,

@@ -14,6 +14,8 @@ export interface StillOutfit {
   stepKey?: string;
   /** Point on the ground between the feet, in source canvas px. */
   anchor: [number, number];
+  /** Ground point of the mid-step picture (its own feet; head stays level with the standing picture). */
+  stepAnchor?: [number, number];
 }
 
 export interface StillCharacterDef {
@@ -141,7 +143,8 @@ export class StillCharacter extends Phaser.GameObjects.Container {
     const a = this.assets.get(key);
     const trim = a.trim ?? { x: 0, y: 0 };
     this.picture.setTexture(key).setVisible(true);
-    this.picture.setOrigin((outfit.anchor[0] - trim.x) / a.width, (outfit.anchor[1] - trim.y) / a.height);
+    const anchor = key === outfit.key ? outfit.anchor : (outfit.stepAnchor ?? outfit.anchor);
+    this.picture.setOrigin((anchor[0] - trim.x) / a.width, (anchor[1] - trim.y) / a.height);
   }
 
   private tick(_time: number, delta: number): void {
@@ -162,7 +165,9 @@ export class StillCharacter extends Phaser.GameObjects.Container {
     const stepT = this.walkPhase % 1;
     const bob = Math.sin(stepT * Math.PI);
     const contact = Math.max(0, 1 - stepT / 0.18); // short squash right after the foot lands
-    let y = -bob * 0.014 * h * this.walkBlend;
+    // With a real mid-step picture the stride itself lowers the body, so the code bob stays small.
+    const bobAmp = this.hasRealTexture(this.def.outfits[this.outfitName].stepKey) ? 0.005 : 0.014;
+    let y = -bob * bobAmp * h * this.walkBlend;
     sy -= 0.018 * contact * this.walkBlend;
     sx += 0.01 * contact * this.walkBlend;
     let rotation = (0.035 + 0.012 * Math.sin(this.walkPhase * Math.PI)) * this.walkBlend;
@@ -189,7 +194,8 @@ export class StillCharacter extends Phaser.GameObjects.Container {
       }
     }
 
-    const wantStep = this.animator.mode === 'walk' && Math.floor(this.walkPhase) % 2 === 0;
+    // Each step: contact (mid-step picture) for the first half, passing (standing picture) for the second.
+    const wantStep = this.animator.mode === 'walk' && stepT < 0.5;
     if (wantStep !== this.stepWanted) this.applyTexture(wantStep);
     this.picture.setPosition(0, y).setScale(sx, sy).setRotation(rotation);
   }
