@@ -10,8 +10,8 @@ export const bedroom: SceneDef = {
   title: 'Bedroom',
   world: { width: 1920, height: 1080 },
   layers: [{ key: 'bedroom.bg', depth: 0 }],
-  walk: { y: 1010, minX: 160, maxX: 1300 },
-  player: { scale: 0.5, tint: 0xffe8d0, depth: 50 },
+  walk: { y: 965, minX: 160, maxX: 1300 },
+  player: { scale: 0.68, tint: 0xffe8d0, depth: 50 },
   hotspots: [
     {
       id: 'laptop',
