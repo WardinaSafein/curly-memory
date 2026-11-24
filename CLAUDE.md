@@ -5,7 +5,7 @@
 - Any art the game needs: Claude writes a ChatGPT prompt with an exact file name and Drive subfolder, and the user generates it.
 - No cutting art into parts. When something needs pieces or variants, ask for them to be generated as separate whole images.
 - Allowed on delivered art: resize, crop to the exact canvas, trim transparent borders, padding for the GPU. Nothing that changes the drawing.
-- Movement comes from code (bob, squash, sway, tweens) on whole stills. No frame-by-frame art.
+- Movement comes from code (bob, squash, sway, tweens) on whole stills. Keep frames to a minimum: the player's walk uses standing + one step picture per leg, per outfit.
 - The player rig parts already in `assets-src/characters/player/` are validated and stay as they are.
 
 ## Working style
