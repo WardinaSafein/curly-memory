@@ -1,115 +1,530 @@
 {
   "version": 1,
-  "defaults": { "padding": 16 },
+  "defaults": {
+    "padding": 16
+  },
   "assets": [
     {
-      "key": "title.bg", "file": "scenes/title/title_bg.png", "size": [1920, 1080], "alpha": false,
-      "placeholder": { "motif": "background", "label": "Title key art (CyberTown at twilight, calm top-centre for logo)", "palette": ["#2f4858", "#86608e", "#f6bd60"] }
-    },
-
-    {
-      "key": "bedroom.bg", "file": "scenes/bedroom/bedroom_bg.png", "size": [1920, 1080], "alpha": false,
-      "placeholder": { "motif": "background", "label": "Bedroom at night, no desk (floor line y=1000)", "palette": ["#2e2440", "#6b4c6e", "#f2b56b"] }
-    },
-    {
-      "key": "bedroom.desk", "file": "scenes/bedroom/bedroom_desk.png", "size": [900, 600], "alpha": true, "trim": true,
-      "placeholder": { "motif": "object", "label": "Desk + chair + lamp (legs on bottom edge)", "palette": ["#7a5038", "#a8724c", "#f2b56b"] }
-    },
-    {
-      "key": "bedroom.laptop_closed", "file": "scenes/bedroom/bedroom_laptop_closed.png", "size": [280, 100], "alpha": true, "padding": 8,
-      "placeholder": { "motif": "object", "label": "Closed laptop", "palette": ["#5d6b7a", "#8fa0b0"] }
-    },
-    {
-      "key": "bedroom.fg", "file": "scenes/bedroom/bedroom_fg.png", "size": [1920, 1080], "alpha": true, "padding": 0,
-      "placeholder": { "motif": "tile", "label": "Foreground framing (mostly empty)", "palette": ["#1d1629"] }
-    },
-
-    {
-      "key": "laptop.closeup_bg", "file": "scenes/laptop/laptop_closeup_bg.png", "size": [1920, 1080], "alpha": false,
-      "placeholder": { "motif": "background", "label": "Desk surface close-up, NO laptop", "palette": ["#3a2a2a", "#7a5038", "#f2b56b"] }
+      "key": "title.bg",
+      "file": "scenes/title/title_bg.png",
+      "size": [
+        1920,
+        1080
+      ],
+      "alpha": false,
+      "placeholder": {
+        "motif": "background",
+        "label": "Title key art (CyberTown at twilight, calm top-centre for logo)",
+        "palette": [
+          "#2f4858",
+          "#86608e",
+          "#f6bd60"
+        ]
+      }
     },
     {
-      "key": "laptop.base", "file": "scenes/laptop/laptop_base.png", "size": [1640, 340], "alpha": true,
-      "placeholder": { "motif": "object", "label": "Laptop base, 15° camera (hinge line y=24)", "palette": ["#5d6b7a", "#8fa0b0", "#c9d3dc"] }
+      "key": "bedroom.bg",
+      "file": "scenes/bedroom/bedroom_bg.png",
+      "size": [
+        1920,
+        1080
+      ],
+      "alpha": false,
+      "placeholder": {
+        "motif": "background",
+        "label": "Bedroom at night, no desk (floor line y=1000)",
+        "palette": [
+          "#2e2440",
+          "#6b4c6e",
+          "#f2b56b"
+        ]
+      }
     },
     {
-      "key": "laptop.lid_outer", "file": "scenes/laptop/laptop_lid_outer.png", "size": [1280, 800], "alpha": true, "padding": 0,
-      "placeholder": { "motif": "object", "label": "Lid OUTSIDE, flat front-on, no perspective", "palette": ["#6c7c8c", "#9aaaba"] }
+      "key": "bedroom.desk",
+      "file": "scenes/bedroom/bedroom_desk.png",
+      "size": [
+        900,
+        600
+      ],
+      "alpha": true,
+      "trim": true,
+      "placeholder": {
+        "motif": "object",
+        "label": "Desk + chair + lamp (legs on bottom edge)",
+        "palette": [
+          "#7a5038",
+          "#a8724c",
+          "#f2b56b"
+        ]
+      }
     },
     {
-      "key": "laptop.lid_inner", "file": "scenes/laptop/laptop_lid_inner.png", "size": [1280, 800], "alpha": true, "padding": 0,
-      "placeholder": { "motif": "screen", "label": "Lid INSIDE: bezel, black screen 1200x720 at (40,32)", "palette": ["#2a2f36", "#000000"] }
+      "key": "bedroom.laptop_closed",
+      "file": "scenes/bedroom/bedroom_laptop_closed.png",
+      "size": [
+        280,
+        100
+      ],
+      "alpha": true,
+      "padding": 8,
+      "placeholder": {
+        "motif": "object",
+        "label": "Closed laptop",
+        "palette": [
+          "#5d6b7a",
+          "#8fa0b0"
+        ]
+      }
     },
     {
-      "key": "os.wallpaper", "file": "scenes/laptop/os_wallpaper.png", "size": [1200, 720], "alpha": false,
-      "placeholder": { "motif": "background", "label": "Laptop OS wallpaper", "palette": ["#33506a", "#86608e", "#f6bd60"] }
+      "key": "bedroom.fg",
+      "file": "scenes/bedroom/bedroom_fg.png",
+      "size": [
+        1920,
+        1080
+      ],
+      "alpha": true,
+      "padding": 0,
+      "placeholder": {
+        "motif": "tile",
+        "label": "Foreground framing (mostly empty)",
+        "palette": [
+          "#1d1629"
+        ]
+      }
     },
     {
-      "key": "os.bootlogo", "file": "scenes/laptop/os_bootlogo.png", "size": [256, 256], "alpha": true,
-      "placeholder": { "motif": "glyph", "label": "boot", "palette": ["#ffffff"] }
-    },
-
-    {
-      "key": "fx.portal_ring", "file": "fx/fx_portal_ring.png", "size": [1024, 1024], "alpha": true,
-      "placeholder": { "motif": "ring", "palette": ["#ffffff"] }
-    },
-    {
-      "key": "fx.tunnel_streaks", "file": "fx/fx_tunnel_streaks.png", "size": [1024, 1024], "alpha": true, "tile": "xy",
-      "placeholder": { "motif": "streaks", "palette": ["#ffffff"] }
-    },
-    {
-      "key": "fx.glyph.{g}", "file": "fx/fx_glyph_{g}.png", "size": [64, 64], "alpha": true, "padding": 4,
-      "vars": { "g": ["zero", "one", "lock", "key", "shield", "hex"] },
-      "placeholder": { "motif": "glyph", "label": "{g}", "palette": ["#ffffff"] }
-    },
-
-    {
-      "key": "town.sky", "file": "scenes/cybertown/town_sky.png", "size": [1920, 1080], "alpha": false,
-      "placeholder": { "motif": "background", "label": "CyberTown sky (static)", "palette": ["#2f4858", "#86608e", "#f6bd60"] }
+      "key": "laptop.closeup_bg",
+      "file": "scenes/laptop/laptop_closeup_bg.png",
+      "size": [
+        1920,
+        1080
+      ],
+      "alpha": false,
+      "placeholder": {
+        "motif": "background",
+        "label": "Desk surface close-up, NO laptop",
+        "palette": [
+          "#3a2a2a",
+          "#7a5038",
+          "#f2b56b"
+        ]
+      }
     },
     {
-      "key": "town.far", "file": "scenes/cybertown/town_far.png", "size": [1920, 600], "alpha": true, "tile": "x", "padding": 0,
-      "placeholder": { "motif": "tile", "label": "Far skyline, seamless X", "palette": ["#4a5a78", "#5e6d8a"] }
+      "key": "laptop.base",
+      "file": "scenes/laptop/laptop_base.png",
+      "size": [
+        1640,
+        340
+      ],
+      "alpha": true,
+      "placeholder": {
+        "motif": "object",
+        "label": "Laptop base, 15\u00b0 camera (hinge line y=24)",
+        "palette": [
+          "#5d6b7a",
+          "#8fa0b0",
+          "#c9d3dc"
+        ]
+      }
     },
     {
-      "key": "town.mid", "file": "scenes/cybertown/town_mid.png", "size": [1920, 800], "alpha": true, "tile": "x", "padding": 0,
-      "placeholder": { "motif": "tile", "label": "Mid town rooftops, seamless X", "palette": ["#5b4a6e", "#7a6488", "#f6bd60"] }
+      "key": "laptop.lid_outer",
+      "file": "scenes/laptop/laptop_lid_outer.png",
+      "size": [
+        1280,
+        800
+      ],
+      "alpha": true,
+      "padding": 0,
+      "placeholder": {
+        "motif": "object",
+        "label": "Lid OUTSIDE, flat front-on, no perspective",
+        "palette": [
+          "#6c7c8c",
+          "#9aaaba"
+        ]
+      }
     },
     {
-      "key": "town.street", "file": "scenes/cybertown/town_street.png", "size": [1920, 300], "alpha": false, "tile": "x",
-      "placeholder": { "motif": "tile", "label": "Street + sidewalk, seamless X (walk line 165px from top)", "palette": ["#6e5a50", "#8c7466", "#b89a80"] }
+      "key": "laptop.lid_inner",
+      "file": "scenes/laptop/laptop_lid_inner.png",
+      "size": [
+        1280,
+        800
+      ],
+      "alpha": true,
+      "padding": 0,
+      "placeholder": {
+        "motif": "screen",
+        "label": "Lid INSIDE: bezel, black screen 1200x720 at (40,32)",
+        "palette": [
+          "#2a2f36",
+          "#000000"
+        ]
+      }
     },
     {
-      "key": "town.bldg.{n}", "file": "scenes/cybertown/town_bldg_{n}.png", "size": [800, 900], "alpha": true, "trim": true,
-      "vars": { "n": ["01", "02", "03", "04", "05"] },
-      "placeholder": { "motif": "object", "label": "Game building {n} (blank sign, visible door)", "palette": ["#c98a5e", "#e8c39e", "#f6bd60"] }
+      "key": "os.wallpaper",
+      "file": "scenes/laptop/os_wallpaper.png",
+      "size": [
+        1200,
+        720
+      ],
+      "alpha": false,
+      "placeholder": {
+        "motif": "background",
+        "label": "Laptop OS wallpaper",
+        "palette": [
+          "#33506a",
+          "#86608e",
+          "#f6bd60"
+        ]
+      }
     },
     {
-      "key": "town.prop.{p}", "file": "scenes/cybertown/town_prop_{p}.png", "size": [400, 520], "alpha": true, "trim": true,
-      "vars": { "p": ["lamppost", "noticeboard", "bench"] },
-      "placeholder": { "motif": "object", "label": "Prop: {p}", "palette": ["#4e5d6c", "#7f8f9e", "#f6bd60"] }
+      "key": "os.bootlogo",
+      "file": "scenes/laptop/os_bootlogo.png",
+      "size": [
+        256,
+        256
+      ],
+      "alpha": true,
+      "placeholder": {
+        "motif": "glyph",
+        "label": "boot",
+        "palette": [
+          "#ffffff"
+        ]
+      }
     },
     {
-      "key": "town.portal_pad", "file": "scenes/cybertown/town_portal_pad.png", "size": [600, 200], "alpha": true, "trim": true,
-      "placeholder": { "motif": "object", "label": "Arrival portal pad", "palette": ["#5e7f8a", "#9cc5c9"] }
+      "key": "fx.portal_ring",
+      "file": "fx/fx_portal_ring.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "alpha": true,
+      "placeholder": {
+        "motif": "ring",
+        "palette": [
+          "#ffffff"
+        ]
+      }
     },
     {
-      "key": "town.fg", "file": "scenes/cybertown/town_fg.png", "size": [1920, 1080], "alpha": true, "tile": "x", "padding": 0,
-      "placeholder": { "motif": "tile", "label": "Foreground framing, seamless X (mostly empty)", "palette": ["#1f2a36"] }
+      "key": "fx.tunnel_streaks",
+      "file": "fx/fx_tunnel_streaks.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "alpha": true,
+      "tile": "xy",
+      "placeholder": {
+        "motif": "streaks",
+        "palette": [
+          "#ffffff"
+        ]
+      }
     },
-
     {
-      "key": "npc.gus", "file": "characters/gus/gus_placeholder.png", "size": [640, 1200], "alpha": true, "trim": true,
-      "placeholder": { "motif": "figure", "label": "GUS (design pending approval)", "palette": ["#8a7a9e", "#cbbbd9"] },
+      "key": "fx.glyph.{g}",
+      "file": "fx/fx_glyph_{g}.png",
+      "size": [
+        64,
+        64
+      ],
+      "alpha": true,
+      "padding": 4,
+      "vars": {
+        "g": [
+          "zero",
+          "one",
+          "lock",
+          "key",
+          "shield",
+          "hex"
+        ]
+      },
+      "placeholder": {
+        "motif": "glyph",
+        "label": "{g}",
+        "palette": [
+          "#ffffff"
+        ]
+      }
+    },
+    {
+      "key": "town.sky",
+      "file": "scenes/cybertown/town_sky.png",
+      "size": [
+        1920,
+        1080
+      ],
+      "alpha": false,
+      "placeholder": {
+        "motif": "background",
+        "label": "CyberTown sky (static)",
+        "palette": [
+          "#2f4858",
+          "#86608e",
+          "#f6bd60"
+        ]
+      }
+    },
+    {
+      "key": "town.far",
+      "file": "scenes/cybertown/town_far.png",
+      "size": [
+        1920,
+        600
+      ],
+      "alpha": true,
+      "tile": "x",
+      "padding": 0,
+      "placeholder": {
+        "motif": "tile",
+        "label": "Far skyline, seamless X",
+        "palette": [
+          "#4a5a78",
+          "#5e6d8a"
+        ]
+      }
+    },
+    {
+      "key": "town.mid",
+      "file": "scenes/cybertown/town_mid.png",
+      "size": [
+        1920,
+        800
+      ],
+      "alpha": true,
+      "tile": "x",
+      "padding": 0,
+      "placeholder": {
+        "motif": "tile",
+        "label": "Mid town rooftops, seamless X",
+        "palette": [
+          "#5b4a6e",
+          "#7a6488",
+          "#f6bd60"
+        ]
+      }
+    },
+    {
+      "key": "town.street",
+      "file": "scenes/cybertown/town_street.png",
+      "size": [
+        1920,
+        300
+      ],
+      "alpha": false,
+      "tile": "x",
+      "placeholder": {
+        "motif": "tile",
+        "label": "Street + sidewalk, seamless X (walk line 165px from top)",
+        "palette": [
+          "#6e5a50",
+          "#8c7466",
+          "#b89a80"
+        ]
+      }
+    },
+    {
+      "key": "town.bldg.{n}",
+      "file": "scenes/cybertown/town_bldg_{n}.png",
+      "size": [
+        800,
+        900
+      ],
+      "alpha": true,
+      "trim": true,
+      "vars": {
+        "n": [
+          "01",
+          "02",
+          "03",
+          "04",
+          "05"
+        ]
+      },
+      "placeholder": {
+        "motif": "object",
+        "label": "Game building {n} (blank sign, visible door)",
+        "palette": [
+          "#c98a5e",
+          "#e8c39e",
+          "#f6bd60"
+        ]
+      }
+    },
+    {
+      "key": "town.prop.{p}",
+      "file": "scenes/cybertown/town_prop_{p}.png",
+      "size": [
+        400,
+        520
+      ],
+      "alpha": true,
+      "trim": true,
+      "vars": {
+        "p": [
+          "lamppost",
+          "noticeboard",
+          "bench"
+        ]
+      },
+      "placeholder": {
+        "motif": "object",
+        "label": "Prop: {p}",
+        "palette": [
+          "#4e5d6c",
+          "#7f8f9e",
+          "#f6bd60"
+        ]
+      }
+    },
+    {
+      "key": "town.portal_pad",
+      "file": "scenes/cybertown/town_portal_pad.png",
+      "size": [
+        600,
+        200
+      ],
+      "alpha": true,
+      "trim": true,
+      "placeholder": {
+        "motif": "object",
+        "label": "Arrival portal pad",
+        "palette": [
+          "#5e7f8a",
+          "#9cc5c9"
+        ]
+      }
+    },
+    {
+      "key": "town.fg",
+      "file": "scenes/cybertown/town_fg.png",
+      "size": [
+        1920,
+        1080
+      ],
+      "alpha": true,
+      "tile": "x",
+      "padding": 0,
+      "placeholder": {
+        "motif": "tile",
+        "label": "Foreground framing, seamless X (mostly empty)",
+        "palette": [
+          "#1f2a36"
+        ]
+      }
+    },
+    {
+      "key": "npc.gus",
+      "file": "characters/gus/gus_placeholder.png",
+      "size": [
+        640,
+        1200
+      ],
+      "alpha": true,
+      "trim": true,
+      "placeholder": {
+        "motif": "figure",
+        "label": "GUS (design pending approval)",
+        "palette": [
+          "#8a7a9e",
+          "#cbbbd9"
+        ]
+      },
       "notes": "Stand-in only. Gus's final design and format (rig or illustrated poses) are not decided."
+    },
+    {
+      "key": "defense.map",
+      "file": "scenes/defense/defense_post_road.png",
+      "size": [
+        1920,
+        1080
+      ],
+      "alpha": false,
+      "placeholder": {
+        "motif": "background",
+        "label": "Road to the Post Office (path from left to right)",
+        "palette": [
+          "#6f8f5a",
+          "#a9b97a",
+          "#d8b26e"
+        ]
+      }
+    },
+    {
+      "key": "defense.post_office",
+      "file": "scenes/defense/post_office_gate.png",
+      "size": [
+        600,
+        600
+      ],
+      "alpha": true,
+      "trim": true,
+      "placeholder": {
+        "motif": "object",
+        "label": "Post Office (the town gate)",
+        "palette": [
+          "#b5603f",
+          "#e8c39e",
+          "#f6bd60"
+        ]
+      }
+    },
+    {
+      "key": "defense.creature.{k}",
+      "file": "characters/creatures/creature_{k}.png",
+      "size": [
+        512,
+        512
+      ],
+      "alpha": true,
+      "trim": true,
+      "vars": {
+        "k": [
+          "letter",
+          "parcel",
+          "courier"
+        ]
+      },
+      "placeholder": {
+        "motif": "creature",
+        "label": "{k}",
+        "palette": [
+          "#f3e6cf",
+          "#b5603f",
+          "#3b2a26"
+        ]
+      }
     }
   ],
   "rigs": [
     {
       "rig": "player",
       "dir": "characters/player",
-      "appearances": [{ "skin": "s01", "hair": "h01", "outfit": "o01", "eyes": "e01", "brows": "b01", "mouth": "m01" }],
-      "reference": { "key": "player.ref.{outfit}", "file": "player_ref_{outfit}.png" }
+      "appearances": [
+        {
+          "skin": "s01",
+          "hair": "h01",
+          "outfit": "o01",
+          "eyes": "e01",
+          "brows": "b01",
+          "mouth": "m01"
+        }
+      ],
+      "reference": {
+        "key": "player.ref.{outfit}",
+        "file": "player_ref_{outfit}.png"
+      }
     }
   ]
 }

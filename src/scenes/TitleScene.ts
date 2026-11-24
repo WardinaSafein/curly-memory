@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { FontFamily, GAME_WIDTH, SceneKeys } from '../config/game';
 import { services } from '../core/Services';
 import { Button } from '../ui/Button';
-import { gotoLocation, playCinematic } from './router';
+import { gotoLocation, playCinematic, playMission } from './router';
 
 /** Title screen. The secondary row is a review menu for the prototype (jump straight to any part). */
 export class TitleScene extends Phaser.Scene {
@@ -21,11 +21,12 @@ export class TitleScene extends Phaser.Scene {
       ['Rig Lab', () => this.scene.start(SceneKeys.RigLab)],
       ['Bedroom', () => gotoLocation(this, 'bedroom')],
       ['Portal cinematic', () => playCinematic(this, 'portal')],
+      ['Chapter 1', () => playMission(this, 'ch1_phishing')],
       ['CyberTown', () => gotoLocation(this, 'cybertown', 'portal')],
       ['Reset save', () => { services.state.reset(); this.scene.restart(); }],
     ];
     this.add.text(GAME_WIDTH / 2, 660, 'Jump to', { fontFamily: FontFamily, fontSize: '26px', color: '#fff1d6', stroke: '#2b2130', strokeThickness: 5 }).setOrigin(0.5);
-    review.forEach(([label, fn], i) => new Button(this, GAME_WIDTH / 2 + (i - 2) * 300, 740, label, fn, { width: 270, height: 64, fontSize: 24 }));
+    review.forEach(([label, fn], i) => new Button(this, GAME_WIDTH / 2 + (i - (review.length - 1) / 2) * 285, 740, label, fn, { width: 265, height: 64, fontSize: 23 }));
 
     const s = services.assets.summary;
     if (s) {

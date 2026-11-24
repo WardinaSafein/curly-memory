@@ -23,6 +23,7 @@ export type PlaceholderMotif =
   | 'glyph'
   | 'streaks'
   | 'screen'
+  | 'creature'
   | 'rig';
 
 export interface PlaceholderSpec {

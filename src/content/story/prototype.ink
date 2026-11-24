@@ -17,7 +17,7 @@ The city hums below. Somewhere out there, a thousand inboxes are filling up with
 -> END
 
 === bedroom_poster ===
-A faded poster: "THINK BEFORE YOU CLICK." Someone has drawn a tiny moustache on the cursor.
+Photos from the last team hike. Everyone's smiling. Nobody's checking email.
 -> END
 
 === bedroom_laptop ===
@@ -75,6 +75,27 @@ Gus: Ready when you are.
 + [Let's go]
     Gus: That's the spirit. The districts open in the next update. Literally.
     -> END
+
+=== post_office_intro ===
+~ setFlag("ch1_go", false)
+{ getFlag("ch1_complete"):
+    Gus: Back for another round? The Mail Thief never rests.
+- else:
+    Gus: Here's our first case. Letters keep going missing and fake ones keep getting in.
+    Gus: Messages walk this road to the Post Office. Some are real, some are the Mail Thief in disguise.
+    Gus: Inspect each one. Let it in, block it, or report it to me. Reporting warns the whole town.
+}
+* [Let's defend the Post Office]
+    ~ setFlag("ch1_go", true)
+    -> END
+* [Not yet]
+    Gus: I'll be here.
+    -> END
+
+=== post_office_done ===
+Gus: The Post Office is safe again, and the town knows the Mail Thief's tricks.
+Gus: Remember: check the real sender, look where links really go, and when in doubt, report it.
+-> END
 
 === building_locked(name) ===
 {name}. The door is sealed with a flickering lock.

@@ -1,12 +1,12 @@
 import type { HotspotDef, LayerDef, SceneDef } from '../../systems/scene/SceneDefinition';
 
-/** Working titles for the five game districts (placeholders, to be renamed by the team). */
+/** The five chapter locations (design doc section 7). */
 export const DISTRICTS = [
-  { n: '01', x: 380, name: 'The Phish Market' },
-  { n: '02', x: 1060, name: 'The Password Vault' },
-  { n: '03', x: 1740, name: 'Patchworks' },
-  { n: '04', x: 3140, name: 'The Social Club' },
-  { n: '05', x: 3820, name: 'Data Harbour' },
+  { n: '01', x: 380, name: 'Post Office', chapter: 1 },
+  { n: '02', x: 1060, name: 'Mobile Market', chapter: 2 },
+  { n: '03', x: 1740, name: 'Communication Centre', chapter: 3 },
+  { n: '04', x: 3140, name: 'Town Hall', chapter: 4 },
+  { n: '05', x: 3820, name: 'Media Studio', chapter: 5 },
 ] as const;
 
 const BUILDING_SCALE = 0.8;
@@ -17,12 +17,14 @@ const buildingLayers: LayerDef[] = DISTRICTS.map((d) => ({ id: `bldg${d.n}`, key
 
 const buildingHotspots: HotspotDef[] = DISTRICTS.map((d) => ({
   id: `bldg${d.n}`,
-  label: `${d.name} (locked)`,
+  label: d.chapter === 1 ? `${d.name}: Chapter 1` : `${d.name} (opens later)`,
   area: { x: d.x - 240, y: 812 - 640, w: 480, h: 640 },
   highlight: `bldg${d.n}`,
   walkTo: d.x,
   face: 'right',
-  actions: [{ type: 'dialogue', knot: 'building_locked', args: [d.name] }],
+  actions: d.chapter === 1
+    ? [{ type: 'dialogue', knot: 'post_office_intro' }, { type: 'mission', id: 'ch1_phishing', if: 'ch1_go' }]
+    : [{ type: 'dialogue', knot: 'building_locked', args: [d.name] }],
 }));
 
 /** CyberTown high street: arrival plaza in the middle, five districts along the street. Scrolls horizontally. */
@@ -53,6 +55,11 @@ export const cybertown: SceneDef = {
   ],
   entries: {
     default: { x: 2440, facing: 'right' },
+    post_office: {
+      x: 520,
+      facing: 'right',
+      actions: [{ type: 'dialogue', knot: 'post_office_done', if: 'ch1_complete' }],
+    },
     portal: {
       x: 2440,
       facing: 'right',

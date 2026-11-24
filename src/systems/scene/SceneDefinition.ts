@@ -15,6 +15,8 @@ export type Action = Guard &
   (
     | { type: 'dialogue'; knot: string; args?: (string | number | boolean)[] }
     | { type: 'cinematic'; id: string }
+    /** Start a "defend the town" mission. */
+    | { type: 'mission'; id: string }
     | { type: 'goto'; scene: string; entry?: string }
     | { type: 'setFlag'; flag: string; value: boolean | number | string }
     /** One-shot player animation clip (e.g. surprise). */

@@ -13,6 +13,10 @@ export function playCinematic(from: Phaser.Scene, id: string): void {
   from.scene.start(SceneKeys.Cinematic, { id });
 }
 
+export function playMission(from: Phaser.Scene, missionId: string): void {
+  from.scene.start(SceneKeys.Defense, { missionId });
+}
+
 export function gotoTitle(from: Phaser.Scene): void {
   from.scene.start(SceneKeys.Title);
 }
@@ -20,6 +24,10 @@ export function gotoTitle(from: Phaser.Scene): void {
 export function runTransition(from: Phaser.Scene, action: Action): boolean {
   if (action.type === 'goto') {
     gotoLocation(from, action.scene, action.entry);
+    return true;
+  }
+  if (action.type === 'mission') {
+    playMission(from, action.id);
     return true;
   }
   if (action.type === 'cinematic') {
@@ -41,6 +49,8 @@ export function startFromUrl(from: Phaser.Scene): void {
       return;
     case 'portal':
       return playCinematic(from, 'portal');
+    case 'defense':
+      return playMission(from, services.params.get('mission') ?? 'ch1_phishing');
     default:
       return gotoLocation(from, target, services.params.get('entry') ?? 'default');
   }

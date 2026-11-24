@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH } from './config/game';
 import { BootScene } from './scenes/BootScene';
 import { CinematicScene } from './scenes/CinematicScene';
+import { DefenseScene } from './scenes/DefenseScene';
 import { ExploreScene } from './scenes/ExploreScene';
 import { PreloadScene } from './scenes/PreloadScene';
 import { RigLabScene } from './scenes/RigLabScene';
@@ -28,7 +29,7 @@ const game = new Phaser.Game({
   input: { activePointers: 2 },
   // Mipmaps give smooth downscaling (characters are drawn at ~0.34x in scenes).
   render: { maxTextures, mipmapFilter: 'LINEAR_MIPMAP_LINEAR' },
-  scene: [BootScene, PreloadScene, TitleScene, ExploreScene, CinematicScene, RigLabScene],
+  scene: [BootScene, PreloadScene, TitleScene, ExploreScene, CinematicScene, RigLabScene, DefenseScene],
 });
 
 // Handy for debugging in the browser console.

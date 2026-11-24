@@ -233,6 +233,7 @@ export class ExploreScene extends Phaser.Scene {
           break;
         case 'goto':
         case 'cinematic':
+        case 'mission':
           this.cameras.main.fadeOut(350, 0, 0, 0);
           await new Promise((r) => this.time.delayedCall(360, r));
           runTransition(this, a);

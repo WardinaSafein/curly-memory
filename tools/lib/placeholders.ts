@@ -50,6 +50,10 @@ function background(a: DeclaredAsset, w: number, h: number): string {
   } else if (a.key.startsWith('laptop.closeup_bg')) {
     detail = `<rect x="0" y="560" width="${w}" height="${h - 560}" fill="${shade(c1, -0.1)}"/><rect x="0" y="560" width="${w}" height="12" fill="${shade(c1, 0.2)}"/>
       <ellipse cx="${w / 2}" cy="300" rx="700" ry="260" fill="${c2}" opacity="0.12"/>`;
+  } else if (a.key === 'defense.map') {
+    detail = `<path d="M -40 760 C 300 640, 520 880, 860 800 S 1380 640, 1700 740" fill="none" stroke="${c2}" stroke-width="120" stroke-linecap="round"/>
+      <path d="M -40 760 C 300 640, 520 880, 860 800 S 1380 640, 1700 740" fill="none" stroke="${shade(c2, 0.25)}" stroke-width="8" stroke-dasharray="30 30"/>
+      ${Array.from({ length: 14 }, (_, i) => `<circle cx="${(i * 263) % w}" cy="${300 + ((i * 137) % 260)}" r="${50 + (i % 3) * 18}" fill="${shade(c0, -0.15)}"/>`).join('')}`;
   } else if (a.key.startsWith('os.wallpaper')) {
     detail = `<circle cx="${w * 0.7}" cy="${h * 0.35}" r="160" fill="${c2}" opacity="0.35"/><path d="M0 ${h * 0.75} Q ${w * 0.5} ${h * 0.55} ${w} ${h * 0.8} L ${w} ${h} L 0 ${h} Z" fill="${shade(c0, -0.3)}"/>`;
   }
@@ -147,6 +151,32 @@ function tile(a: DeclaredAsset, w: number, h: number): string {
     }).join('') + `<rect y="${h - 40}" width="${w}" height="40" fill="${c0}"/>`;
   }
   return body + label(a, w, h, true, a.key.endsWith('.fg') ? 'corner' : 'top');
+}
+
+/** Message creature: a little walking letter / parcel / courier with eyes and feet. */
+function creature(a: DeclaredAsset, w: number, h: number): string {
+  const kind = a.placeholder?.label ?? 'letter';
+  const [paper = '#f3e6cf', accent = '#b5603f', ink = '#3b2a26'] = a.placeholder?.palette ?? [];
+  const st = `stroke="${ink}" stroke-width="10" stroke-linejoin="round" stroke-linecap="round"`;
+  const cx = w / 2, base = h - 60;
+  const feet = `<path d="M ${cx - 70} ${base - 40} L ${cx - 80} ${base}" ${st} fill="none"/><path d="M ${cx + 70} ${base - 40} L ${cx + 80} ${base}" ${st} fill="none"/>
+    <ellipse cx="${cx - 90}" cy="${base}" rx="34" ry="14" fill="${ink}"/><ellipse cx="${cx + 90}" cy="${base}" rx="34" ry="14" fill="${ink}"/>`;
+  const eyes = (y: number): string => `<ellipse cx="${cx - 45}" cy="${y}" rx="22" ry="28" fill="#fff" ${st}/><ellipse cx="${cx + 45}" cy="${y}" rx="22" ry="28" fill="#fff" ${st}/>
+    <circle cx="${cx - 38}" cy="${y + 6}" r="10" fill="${ink}"/><circle cx="${cx + 52}" cy="${y + 6}" r="10" fill="${ink}"/>`;
+  let body = '';
+  if (kind === 'parcel') {
+    body = `<rect x="${cx - 150}" y="${base - 300}" width="300" height="260" rx="24" fill="#c9915a" ${st}/>
+      <rect x="${cx - 24}" y="${base - 300}" width="48" height="260" fill="#e7c08a" ${st}/>` + eyes(base - 190);
+  } else if (kind === 'courier') {
+    body = `<rect x="${cx - 110}" y="${base - 320}" width="220" height="280" rx="90" fill="${accent}" ${st}/>
+      <path d="M ${cx - 120} ${base - 330} L ${cx + 120} ${base - 330} L ${cx + 80} ${base - 380} L ${cx - 80} ${base - 380} Z" fill="${ink}"/>
+      <rect x="${cx + 60}" y="${base - 200}" width="120" height="90" rx="10" fill="${paper}" ${st}/>` + eyes(base - 240);
+  } else {
+    body = `<rect x="${cx - 170}" y="${base - 280}" width="340" height="230" rx="20" fill="${paper}" ${st}/>
+      <path d="M ${cx - 170} ${base - 280} L ${cx} ${base - 160} L ${cx + 170} ${base - 280}" fill="none" ${st}/>
+      <circle cx="${cx}" cy="${base - 150}" r="22" fill="${accent}" ${st}/>` + eyes(base - 215);
+  }
+  return feet + body;
 }
 
 function ring(w: number, h: number): string {
@@ -274,6 +304,7 @@ export function placeholderSvg(asset: DeclaredAsset, rigs: Record<string, RigDef
     case 'figure': return svgDoc(w, h, figure(asset, w, h));
     case 'tile': return svgDoc(w, h, tile(asset, w, h));
     case 'ring': return svgDoc(w, h, ring(w, h));
+    case 'creature': return svgDoc(w, h, creature(asset, w, h));
     case 'glyph': return svgDoc(w, h, glyph(asset, w, h));
     case 'streaks': return svgDoc(w, h, streaks(w, h));
     case 'rig':

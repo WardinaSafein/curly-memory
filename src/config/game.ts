@@ -9,6 +9,7 @@ export const SceneKeys = {
   Explore: 'explore',
   Cinematic: 'cinematic',
   RigLab: 'riglab',
+  Defense: 'defense',
 } as const;
 
 /** Warm, hand-drawn UI palette (placeholder until the art direction supplies a final one). */
